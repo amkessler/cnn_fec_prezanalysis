@@ -78,7 +78,8 @@ joined$lastname <- str_split(joined$name, ",", simplify = TRUE)[,1]
 #final table
 byzip_bycand <- joined %>% 
   ungroup %>% 
-  select(lastname, everything(), -name)
+  select(lastname, everything(), -name) %>% 
+  mutate(fips = paste0(state_fips, county_fips)) 
 
 byzip_bycand
 
@@ -119,3 +120,12 @@ byzip_bycand_wide <- test_wide
 #write to file
 write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
   
+
+
+#### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS ####
+#### For Magic Wall
+
+#start with existing zip breakdowns
+byzip_bycand
+
+
