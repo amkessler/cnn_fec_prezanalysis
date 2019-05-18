@@ -19,7 +19,6 @@ contribs_db <- contribs_db %>%
     zip5 = str_sub(str_trim(contributor_zip), 1, 5)
   )
 
-
 #group by zip
 contribs_db %>% 
   group_by(filer_committee_id_number, zip5) %>% 
@@ -32,6 +31,7 @@ by_zip_and_filer <- contribs_db %>%
   group_by(filer_committee_id_number, zip5) %>% 
   summarise(sumcontribs = sum(contribution_amount)) %>% 
   arrange(desc(sumcontribs)) %>% 
+  ungroup() %>% 
   collect()
 
 
@@ -50,10 +50,25 @@ candnames <- cand_db %>%
 #join
 contribs_by_zip <- inner_join(by_zip_and_filer, candnames, by = c("filer_committee_id_number" = "fec_committee_id"))
 
+#see if there are any missing zips and save for review
+zip_missing <- contribs_by_zip %>% 
+  filter(is.na(zip5))
+
 #reorder columns, arrange
 contribs_by_zip <- contribs_by_zip %>% 
+  filter(!is.na(zip5)) %>% 
   select(name, everything()) %>% 
   arrange(name, desc(sumcontribs))
+
+
+#any missing zips?
+contribs_by_zip %>% 
+  filter(is.na(zip5))
+
+#any repeated zips?
+contribs_by_zip %>% 
+  count(name, zip5) %>% 
+  filter(n > 1)
 
 
 
@@ -68,8 +83,19 @@ ziplookup <- ziplookup_raw %>%
   select(zip_code, city, state, county, state_fips, county_fips) %>% 
   unique()
 
+#any repeated zips?
+ziplookup %>% 
+  count(zip_code) %>% 
+  filter(n > 1)
+
+ziplookup %>% 
+  filter(zip_code == "01062") 
+
+
+
 # join 
 # (*note: this is resulting in slightly more records - find out why)
+# appears to have several zips in the lookup table repeating because they cross city lines
 joined <- left_join(contribs_by_zip, ziplookup, by = c("zip5" = "zip_code"))
 
 #create column for just last name of candidate
