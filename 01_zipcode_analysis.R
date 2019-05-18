@@ -26,7 +26,7 @@ contribs_db %>%
   summarise(sumcontribs = sum(contribution_amount)) %>% 
   arrange(desc(sumcontribs))
 
-#collect into local dataframe
+#collect into local dataframe for joining
 #group by zip
 by_zip_and_filer <- contribs_db %>% 
   group_by(filer_committee_id_number, zip5) %>% 
@@ -60,14 +60,16 @@ contribs_by_zip <- contribs_by_zip %>%
 #### BRING IN COMMERCIAL ZIP CODE LOOKUP TABLE #####
 ## add named location associated with each zip code
 
-ziplookup <- read_csv("zip-codes-database-STANDARD.csv")
+ziplookup_raw <- read_csv("zip-codes-database-STANDARD.csv", 
+                          col_types = cols(StateFIPS = col_character()))
 
-ziplookup <- ziplookup %>% 
+ziplookup <- ziplookup_raw %>% 
   clean_names() %>% 
-  select(zip_code, city, state) %>% 
+  select(zip_code, city, state, county, state_fips, county_fips) %>% 
   unique()
 
-#join
+# join 
+# (*note: this is resulting in slightly more records - find out why)
 joined <- left_join(contribs_by_zip, ziplookup, by = c("zip5" = "zip_code"))
 
 #create column for just last name of candidate
