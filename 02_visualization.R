@@ -20,6 +20,8 @@ library(viridis)
 options(tigris_class = "sf")
 
 
+### ZIP CODE MAPPING ####
+
 #checking to make sure zip results loaded
 byzip_bycand
 
@@ -74,6 +76,13 @@ m1 <- leaflet(zip_map) %>%
 m1
 
 #save to frameable file for CMS
-htmlwidgets::saveWidget(frameableWidget(m1),'contribs_byzip_points.html')
+
+# htmlwidgets::saveWidget(frameableWidget(m1),'contribs_byzip_points.html')
+
+
+
+#.........................................
+#### MAPPING STATES ######################
+#.........................................
 
 
