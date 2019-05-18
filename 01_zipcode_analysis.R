@@ -80,7 +80,7 @@ ziplookup_raw <- read_csv("zip-codes-database-STANDARD.csv",
 
 ziplookup <- ziplookup_raw %>% 
   clean_names() %>% 
-  select(zip_code, city, state, county, state_fips, county_fips) %>% 
+  select(zip_code, city, state, county, state_fips, county_fips, latitude, longitude) %>% 
   unique()
 
 #any repeated zips?
@@ -91,7 +91,7 @@ ziplookup %>%
 ziplookup %>% 
   filter(zip_code == "01062") 
 
-
+ziplookup
 
 # join 
 # (*note: this is resulting in slightly more records - find out why)
@@ -165,10 +165,10 @@ write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
 
 #reshaped version to wide
 
-test_c <- bycounty_bycand %>% 
-  select(lastname, fips, sum_in_county)
-
-test_c_wide <- test_c %>% 
-  # tibble::rowid_to_column() %>% 
-  spread(lastname, sum_in_county)
-
+# test_c <- bycounty_bycand %>% 
+#   select(lastname, fips, sum_in_county)
+# 
+# test_c_wide <- test_c %>% 
+#   # tibble::rowid_to_column() %>% 
+#   spread(lastname, sum_in_county)
+# 
