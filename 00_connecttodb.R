@@ -11,3 +11,6 @@ db_password <- Sys.getenv("FEC_DB_PASSWORD") #set this value in .Renviron
 
 con <- dbConnect(drv, dbname=db, host=host_db, port=db_port, user=db_user, password=db_password)
 
+# remove user and pw info from the environment
+rm(db_user)
+rm(db_password)
