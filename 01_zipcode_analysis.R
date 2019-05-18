@@ -128,4 +128,21 @@ write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
 #start with existing zip breakdowns
 byzip_bycand
 
+#group by candidate, county
+bycounty_bycand <- byzip_bycand %>% 
+  group_by(lastname, fips, county, state) %>% 
+  summarise(sum_in_county = sum(sumcontribs)) %>% 
+  ungroup()
+
+#write to file
+write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
+
+#reshaped version to wide
+
+test_c <- bycounty_bycand %>% 
+  select(lastname, fips, sum_in_county)
+
+test_c_wide <- test_c %>% 
+  # tibble::rowid_to_column() %>% 
+  spread(lastname, sum_in_county)
 
