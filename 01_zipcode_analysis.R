@@ -81,11 +81,11 @@ ziplookup_raw <- read_csv("zip-codes-database-STANDARD.csv",
 ziplookup <- ziplookup_raw %>% 
   clean_names() %>% 
   select(zip_code, city, state, county, state_fips, county_fips, latitude, longitude) %>% 
-  unique()
+  distinct(zip_code, .keep_all = TRUE) 
 
 #any repeated zips?
 ziplookup %>% 
-  count(zip_code) %>% 
+  count(zip_code, state) %>% 
   filter(n > 1)
 
 ziplookup %>% 
@@ -94,8 +94,6 @@ ziplookup %>%
 ziplookup
 
 # join 
-# (*note: this is resulting in slightly more records - find out why)
-# appears to have several zips in the lookup table repeating because they cross city lines
 joined <- left_join(contribs_by_zip, ziplookup, by = c("zip5" = "zip_code"))
 
 #create column for just last name of candidate
