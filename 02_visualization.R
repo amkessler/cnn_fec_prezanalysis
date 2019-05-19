@@ -81,7 +81,7 @@ m1 <- leaflet(zip_map) %>%
 m1
 
 #save to frameable file for CMS
-# htmlwidgets::saveWidget(frameableWidget(m1),'contribs_byzip_points.html')
+htmlwidgets::saveWidget(frameableWidget(m1),'candidate_byzip.html')
 
 
 
@@ -148,7 +148,7 @@ m2 <- leaflet(zipcompare_map) %>%
 m2
 
 #save to frameable file for CMS
-# htmlwidgets::saveWidget(frameableWidget(m2),'prezzipcompare_1.html')
+htmlwidgets::saveWidget(frameableWidget(m2),'cand_zipcompare.html')
 
 
 
