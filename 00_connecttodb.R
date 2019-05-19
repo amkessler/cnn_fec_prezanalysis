@@ -14,3 +14,4 @@ con <- dbConnect(drv, dbname=db, host=host_db, port=db_port, user=db_user, passw
 # remove user and pw info from the environment
 rm(db_user)
 rm(db_password)
+rm(db_port)
