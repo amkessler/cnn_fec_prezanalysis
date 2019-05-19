@@ -144,7 +144,7 @@ test_wide <- test %>%
 byzip_bycand_wide <- test_wide
 
 #write to file
-write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
+# write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
   
 
 
