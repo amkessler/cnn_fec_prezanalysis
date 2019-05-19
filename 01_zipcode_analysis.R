@@ -129,21 +129,18 @@ top10_byzip_bycand %>%
   
 
 
-# an alternative structure -- with reshaping ####
-###SOMETHING NOT RIGHT HERE-- ZIPS ARE REPEATING
-
+# an alternative wide structure -- with reshaping ####
 test <- byzip_bycand %>% 
   select(lastname, zip5, sumcontribs)
 
 test_wide <- test %>% 
-  tibble::rowid_to_column() %>% 
   spread(lastname, sumcontribs)
 
 byzip_bycand_wide <- test_wide
 
 #write to file
-# write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
-  
+write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
+
 
 
 #### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS ####
@@ -154,24 +151,30 @@ byzip_bycand
 
 #group by candidate, county
 bycounty_bycand <- byzip_bycand %>% 
+  filter(!is.na(county)) %>% 
   group_by(lastname, fips, county, state) %>% 
-  summarise(sum_in_county = sum(sumcontribs)) %>% 
-  ungroup()
+  summarise(sum_in_county = sum(sumcontribs)) 
+
+#any repeated fips?
+bycounty_bycand %>% 
+  count(lastname, fips) %>% 
+  filter(n > 1)
 
 #write to file
 write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
 
+
 #reshaped version to wide
+test_c <- bycounty_bycand %>%
+  select(lastname, fips, sum_in_county)
 
-# test_c <- bycounty_bycand %>% 
-#   select(lastname, fips, sum_in_county)
-# 
-# test_c_wide <- test_c %>% 
-#   # tibble::rowid_to_column() %>% 
-#   spread(lastname, sum_in_county)
-# 
+test_c_wide <- test_c %>%
+  spread(lastname, sum_in_county)
 
+bycounty_bycand_wide <- test_c_wide
 
+#write to file
+write_csv(bycounty_bycand_wide, "output/bycounty_bycand_wide.csv")
 
 #.................................................................
 #### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
