@@ -172,3 +172,28 @@ m2_nyc
 
 #save to frameable file for CMS
 htmlwidgets::saveWidget(frameableWidget(m2_nyc),'cand_zipcompare_nyc.html')
+
+
+
+
+#### COMPARISON MAP OF ONLY MASS ####
+
+m2_bos <- leaflet(zipcompare_map) %>% 
+  # addTiles() %>%
+  addProviderTiles(providers$Stamen.TonerLite) %>% 
+  addCircles(lng = ~longitude, 
+             lat = ~latitude, 
+             weight = .4,
+             stroke = FALSE,
+             fillOpacity = .45,
+             radius = ~sqrt(advantage) * 6, 
+             fillColor = ~factpal(winner),
+             label = lapply(labs2, HTML)
+  ) %>%
+  addControl("Individual donations (itemized) by zip code", position = "topright") %>% 
+  setView(-71.0589, 42.3601, zoom=12)
+
+m2_bos
+
+#save to frameable file for CMS
+htmlwidgets::saveWidget(frameableWidget(m2_nyc),'cand_zipcompare_bos.html')
