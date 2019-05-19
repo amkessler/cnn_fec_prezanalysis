@@ -198,18 +198,23 @@ z_cand2 <- byzip_bycand %>%
 ### join to compare cand1 and cand2 in each zip
 zipcompare <- full_join(z_cand1, z_cand2)
 
-#change nas to 0
+#change NAs to 0
 zipcompare <- zipcompare %>% 
   replace(., is.na(.), 0)
 
-#party with more
+#calculate winner and money spread
 zipcompare <- zipcompare %>% 
   mutate(
-    winner = ifelse(cand1_contribs>cand2_contribs, "cand1", "cand2"),
-    advantage = abs(cand1_contribs-cand2_contribs)  
+    winner = ifelse(cand1_contribs>cand2_contribs, cand1, cand2),
+    advantage = abs(cand1_contribs-cand2_contribs) 
   )
 
+
 saveRDS(zipcompare, "zipcompare.rds")
+
+
+
+
 
 
 
