@@ -178,16 +178,25 @@ write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
 #.................................................................
 #### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
 
+# rename(!!cand1:= sumcontribs) #this pulls the variable name into the rename function
+
+# select first candidate
+cand1 <- "Booker"
+
+z_cand1 <- byzip_bycand %>% 
+  filter(lastname == cand1) %>% 
+  select(zip5, cand1_contribs = sumcontribs)
+  
+# select second candidate
+cand2 <- "Harris"
+
+z_cand2 <- byzip_bycand %>% 
+  filter(lastname == cand2) %>% 
+  select(zip5, cand2_contribs = sumcontribs)  
 
 
-
-### compare D and R in each zip
-
-colnames(topzips_dem) <- c("zip_code", "demtotal")
-colnames(topzips_gop) <- c("zip_code", "goptotal")
-
-#join
-zipcompare <- full_join(topzips_dem, topzips_gop)
+### join to compare cand1 and cand2 in each zip
+zipcompare <- full_join(z_cand1, z_cand2)
 
 #change nas to 0
 zipcompare <- zipcompare %>% 
@@ -196,8 +205,8 @@ zipcompare <- zipcompare %>%
 #party with more
 zipcompare <- zipcompare %>% 
   mutate(
-    winner = ifelse(demtotal>goptotal, "D", "R"),
-    advantage = abs(demtotal-goptotal)  
+    winner = ifelse(cand1_contribs>cand2_contribs, "cand1", "cand2"),
+    advantage = abs(cand1_contribs-cand2_contribs)  
   )
 
 saveRDS(zipcompare, "zipcompare.rds")
