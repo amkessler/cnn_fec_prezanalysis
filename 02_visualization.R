@@ -74,7 +74,7 @@ m1 <- leaflet(zip_map) %>%
              # fillColor = ~pal(cmag_d_spotcnt),
              label = lapply(labs1, HTML)
   ) %>%
-  addControl("Individual donations (itemized) by zip code (Q1)", position = "topright") %>% 
+  addControl("Individual donations (itemized) by zip code", position = "topright") %>% 
   setView(-96, 37.8, zoom=4)
 
 
@@ -151,5 +151,9 @@ m2
 htmlwidgets::saveWidget(frameableWidget(m2),'cand_zipcompare.html')
 
 
+
+#### MAP OF ONLY NEW YORK CITY ####
+
+# to come...
 
 
