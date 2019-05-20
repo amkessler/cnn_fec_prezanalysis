@@ -1,4 +1,4 @@
-#run script step 00 to connect to db
+#first we'll run script step 00 to connect to db
 source("00_connecttodb.R")
 
 library(tidyverse)
@@ -6,6 +6,7 @@ library(lubridate)
 library(janitor)
 library(dbplyr)
 
+#pull in the schedule A table from postgres db
 contribs_db <- tbl(con, "cycle_2020_schedulea")
 
 glimpse(contribs_db)
@@ -37,11 +38,14 @@ by_zip_and_filer <- contribs_db %>%
 
 
 ##### BRING IN CANDIDATE TABLE TO JOIN ####
+
 ## get the associated name from fec cmte id
 ## we'll also limit to just Prez cmtes
 
+#pull candidate table from postgres db
 cand_db <- tbl(con, "cycle_2020_candidate")
 
+#filter only for presidential
 candnames <- cand_db %>% 
   filter(district == "US") %>% 
   select(name, fec_committee_id) %>% 
@@ -60,7 +64,6 @@ contribs_by_zip <- contribs_by_zip %>%
   select(name, everything()) %>% 
   arrange(name, desc(sumcontribs))
 
-
 #any missing zips?
 contribs_by_zip %>% 
   filter(is.na(zip5))
@@ -72,12 +75,14 @@ contribs_by_zip %>%
 
 
 
-#### BRING IN COMMERCIAL ZIP CODE LOOKUP TABLE #####
-## add named location associated with each zip code
+#### BRING IN ZIP CODE LOOKUP TABLE #####
+
+## we'll add named location associated with each zip code
 
 ziplookup_raw <- read_csv("zip-codes-database-STANDARD.csv", 
                           col_types = cols(StateFIPS = col_character()))
 
+# keep only one distinct record per zip code
 ziplookup <- ziplookup_raw %>% 
   clean_names() %>% 
   select(zip_code, city, state, county, state_fips, county_fips, latitude, longitude) %>% 
@@ -91,7 +96,6 @@ ziplookup %>%
 ziplookup %>% 
   filter(zip_code == "01062") 
 
-ziplookup
 
 # join 
 joined <- left_join(contribs_by_zip, ziplookup, by = c("zip5" = "zip_code"))
@@ -111,10 +115,13 @@ byzip_bycand
 write_csv(byzip_bycand, "output/byzip_bycand.csv")
 
 
-## top 10 zips for each candidate
+
+#### TOP 10 ZIPS FOR EACH CANDIDATE ####
+
+#group by zip
 top10_byzip_bycand <- byzip_bycand %>% 
   group_by(lastname) %>% 
-  top_n(n = 10, wt = sumcontribs) %>% 
+  top_n(n = 10, wt = sumcontribs) %>% #pulls top 10 by sumcontribs value
   ungroup()
 
 top10_byzip_bycand
@@ -129,7 +136,7 @@ top10_byzip_bycand %>%
   
 
 
-# an alternative wide structure -- with reshaping ####
+# reshape to wide format as an alternative table structure ####
 test <- byzip_bycand %>% 
   select(lastname, zip5, sumcontribs)
 
@@ -144,7 +151,7 @@ write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
 
 
 #### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS ####
-#### For Magic Wall
+## For Magic Wall
 
 #start with existing zip breakdowns
 byzip_bycand
@@ -176,10 +183,9 @@ bycounty_bycand_wide <- test_c_wide
 #write to file
 write_csv(bycounty_bycand_wide, "output/bycounty_bycand_wide.csv")
 
-#.................................................................
-#### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
 
-# rename(!!cand1:= sumcontribs) #this pulls the variable name into the rename function
+
+#### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
 
 # select first candidate
 cand1 <- "Booker"
@@ -209,8 +215,8 @@ zipcompare <- zipcompare %>%
     winner = ifelse(cand1_contribs>cand2_contribs, cand1, cand2),
     advantage = abs(cand1_contribs-cand2_contribs) 
   ) %>% 
-  rename(!!cand1:=cand1_contribs,
-         !!cand2:=cand2_contribs) #this pulls the variable name into the rename function
+  rename(!!cand1:=cand1_contribs, #this special coding pulls the variable name into the rename function
+         !!cand2:=cand2_contribs) 
 
 #join with zip lookup table
 joined_temp <- left_join(zipcompare, ziplookup, by = c("zip5" = "zip_code"))
