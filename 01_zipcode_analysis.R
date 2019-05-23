@@ -188,14 +188,14 @@ write_csv(bycounty_bycand_wide, "output/bycounty_bycand_wide.csv")
 #### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
 
 # select first candidate
-cand1 <- "Booker"
+cand1 <- "Buttigieg"
 
 z_cand1 <- byzip_bycand %>% 
   filter(lastname == cand1) %>% 
   select(zip5, cand1_contribs = sumcontribs)
   
 # select second candidate
-cand2 <- "Harris"
+cand2 <- "Warren"
 
 z_cand2 <- byzip_bycand %>% 
   filter(lastname == cand2) %>% 
