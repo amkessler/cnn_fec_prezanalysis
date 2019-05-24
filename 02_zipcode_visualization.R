@@ -165,6 +165,7 @@ m2_nyc <- leaflet(zipcompare_map) %>%
              fillColor = ~factpal(winner),
              label = lapply(labs2, HTML)
   ) %>%
+  addLegend("bottomright", pal = factpal, values = ~winner) %>% 
   addControl("Individual donations (itemized) by zip code", position = "topright") %>% 
   setView(-73.9840, 40.7549, zoom=12)
 
