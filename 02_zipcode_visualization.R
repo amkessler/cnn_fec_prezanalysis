@@ -176,9 +176,9 @@ htmlwidgets::saveWidget(frameableWidget(m2_nyc),'cand_zipcompare_nyc.html')
 
 
 
-#### COMPARISON MAP OF ONLY VEGAS ####
+#### COMPARISON MAP OF ONLY LA AREA ####
 
-m2_vegas <- leaflet(zipcompare_map) %>%
+m4 <- leaflet(zipcompare_map) %>%
   # addTiles() %>%
   addProviderTiles(providers$Stamen.TonerLite) %>%
   addCircles(lng = ~longitude,
@@ -186,15 +186,20 @@ m2_vegas <- leaflet(zipcompare_map) %>%
              weight = .4,
              stroke = FALSE,
              fillOpacity = .45,
-             radius = ~sqrt(advantage) * 60,
+             radius = ~sqrt(advantage) * 40,
              fillColor = ~factpal(winner),
              label = lapply(labs2, HTML)
   ) %>%
+  addLegend("bottomright", pal = factpal, values = ~winner) %>% 
   addControl("Individual donations (itemized) by zip code", position = "topright") %>%
-  setView(-115.1398, 36.1699, zoom=12)
+  setView(-118.2437, 34.0522, zoom=10)
 
-m2_vegas
+m4
+
+#save to RDS object
+# saveRDS(m4, "lamap_petevsliz.rds")
 
 #save to frameable file for CMS
-htmlwidgets::saveWidget(frameableWidget(m2_vegas),'cand_zipcompare_vegas.html')
+htmlwidgets::saveWidget(frameableWidget(m4),'cand_zipcompare_la.html')
+
 

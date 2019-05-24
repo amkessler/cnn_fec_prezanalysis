@@ -1,0 +1,119 @@
+---
+title: "FEC Campaign Finance Project"
+subtitle: "CNN DC Bureau"
+date: "5/24/2019"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+
+
+# .center[Background]
+<br>
+### Campaign costs have accelerated rapidly
+<br>
+### Record number of candidates to keep track of this cycle
+<br>
+### Competition for stories fiercer than ever
+
+
+---
+
+# .center[What We Needed]
+<br>
+### Capability to track and analyze campaign reports in real time as they are filed with the FEC
+
+### Ability to see summary-level comparisons of the candidates instantly
+
+### Capacity to do quick-turnaround deadline and innovative analysis
+
+### Power to fuel data visualizations for digital and broadcast
+
+
+---
+
+# .center[What We've Built]
+<br>
+### Relational database updated in real time to pull in and parse into clean data columns the presidential, congressional and PAC reports 
+<br>
+### Easy-to-use website for CNN staffers to pull interactive results on deadline
+
+
+---
+
+# .center[How We've Built It]
+<br>
+### Created a cross-functional team consisting of editorial, engineering, development and design folks
+<br>
+### Contracted a subject-matter expert in FEC data and backend development, Alex Cohen, to build the database and accompanying tool
+<br>
+### Leveraged existing CNN internal cloud computing resources to host and deploy the results
+
+
+---
+
+class: inverse, center, middle
+
+# Example: Zip Code Analysis
+
+
+---
+
+
+background-image: url("images/MayorPete_g_VS_Warren_o_LosAngeles.jpg")
+<!-- background-position: 50% 50% -->
+class: center, bottom
+
+# You only live once!
+
+---
+
+```{r out.width='100%', fig.height=8, eval=require('leaflet'), echo=FALSE}
+library(leaflet)
+lamap <- readRDS("rdsfiles/lamap_petevsliz.rds")
+lamap
+
+```
+
+
+---
+
+class: inverse, center, middle
+
+# Example: Daily Contribution Trends
+### Matching Patterns to Known Events
+
+---
+
+background-image: url("images/buttigieg_timeline.jpg")
+background-position: 50% 50%
+class: center, bottom
+
+### CNN Town Hall - Impact!
+
+---
+
+
+class: inverse, center, middle
+
+# Example: Magic Wall Integration
+### Top States and Counties for Contributions
+
+
+
+---
+
+class: inverse, center, middle
+
+# Interactive Data Tool Demo
+## Let's take a look!
+
+
+---
+
+
