@@ -14,7 +14,8 @@ glimpse(contribs_db)
 #filter out only individual contributions, and active ones
 #create zip5 field by pulling out just first five digits
 contribs_db <- contribs_db %>% 
-  filter(status == "ACTIVE",
+  filter(active==TRUE,
+         status == "ACTIVE",
          entity_type == "IND") %>% 
   mutate(
     zip5 = str_sub(str_trim(contributor_zip), 1, 5)

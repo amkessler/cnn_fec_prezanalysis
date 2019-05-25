@@ -191,7 +191,7 @@ m2_vegas <- leaflet(zipcompare_map) %>%
              label = lapply(labs2, HTML)
   ) %>%
   addControl("Individual donations (itemized) by zip code", position = "topright") %>%
-  setView(-115.1398, 36.1699, zoom=12)
+  setView(-115.1398, 36.1699, zoom=10)
 
 m2_vegas
 
