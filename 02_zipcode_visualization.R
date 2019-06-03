@@ -193,7 +193,11 @@ m4 <- leaflet(zipcompare_map) %>%
   ) %>%
   addLegend("bottomright", pal = factpal, values = ~winner) %>% 
   addControl("Individual donations (itemized) by zip code", position = "topright") %>%
+<<<<<<< HEAD
   setView(-118.2437, 34.0522, zoom=10)
+=======
+  setView(-115.1398, 36.1699, zoom=10)
+>>>>>>> d46c596a1f70efde10e4abaa33640411912007de
 
 m4
 
