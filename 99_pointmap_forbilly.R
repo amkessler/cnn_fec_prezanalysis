@@ -54,6 +54,7 @@ zip_map <- zip_map %>%
 
 #### MAPPING POINTS #####
 
+
 #make labels for tooltip popups
 labs1 <- lapply(seq(nrow(zip_map)), function(i) {
   paste0( '<p>', 'Zip code: ', '<strong>', zip_map[i, "zip5"], '</strong></p>',
@@ -61,6 +62,7 @@ labs1 <- lapply(seq(nrow(zip_map)), function(i) {
           "1st quarter donations: $", zip_map[i, "sumcontribs"]
   ) 
 })
+
 
 
 #create the leaftlet map object
@@ -78,6 +80,7 @@ m1 <- leaflet(zip_map) %>%
   ) %>%
   addControl("Individual donations (itemized) by zip code", position = "topright") %>% 
   setView(-96, 37.8, zoom=4)
+
 
 #run it
 m1
