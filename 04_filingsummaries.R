@@ -1,12 +1,13 @@
-#first we'll run script step 00 to connect to db
-source("00_connecttodb.R")
+#first we'll run the previously saved script that connects to the database with your credentials
+source("00_connecttodb.R") # this is my file name -- use yours here instead
 
+#load the necessary R libraries
 library(tidyverse)
 library(lubridate)
 library(writexl)
 library(dbplyr)
 
-#pull in the schedule A table from postgres db
+#pull in the filing table with the summaries from postgres db
 data <- tbl(con, "cycle_2020_filing")
 
 #look at the list of columns
