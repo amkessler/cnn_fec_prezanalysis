@@ -6,6 +6,9 @@ library(lubridate)
 library(janitor)
 library(dbplyr)
 
+#list the tables in the database
+src_dbi(con)
+
 #pull in the schedule A table from postgres db
 contribs_db <- tbl(con, "cycle_2020_schedulea")
 
@@ -26,6 +29,8 @@ contribs_db %>%
   group_by(filer_committee_id_number, zip5) %>% 
   summarise(sumcontribs = sum(contribution_amount)) %>% 
   arrange(desc(sumcontribs))
+
+#to see the actual SQL statement generated add show_query() to the above
 
 #collect into local dataframe for joining
 #group by zip

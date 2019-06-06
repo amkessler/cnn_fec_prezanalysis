@@ -15,3 +15,6 @@ con <- dbConnect(drv, dbname=db, host=host_db, port=db_port, user=db_user, passw
 rm(db_user)
 rm(db_password)
 rm(db_port)
+
+#list the tables in the database
+# dbplyr::src_dbi(con)
