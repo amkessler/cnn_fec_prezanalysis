@@ -16,5 +16,5 @@ rm(db_user)
 rm(db_password)
 rm(db_port)
 
-#list the tables in the database
-# dbplyr::src_dbi(con)
+#list the tables in the database to confirm connection
+dbplyr::src_dbi(con)
