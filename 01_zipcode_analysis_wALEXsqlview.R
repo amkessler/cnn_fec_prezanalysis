@@ -15,8 +15,16 @@ zips <- tbl(con, "zips_by_prezcand")
 glimpse(zips)
 
 #save locally as a dataframe
-zips_by_prezcands <- zips %>% 
+zips_collected <- zips %>% 
   collect()
+
+head(zips_collected)
+
+#group by candidate, zip for INDIVIDUALS only
+zips_by_prezcands <- zips_collected %>% 
+  filter(entity_type == "IND") %>% 
+  group_by(pres_cand, contributor_zip5) %>% 
+  summarise(sumcontribs = sum(total))
 
 #any missing zips?
 zips_by_prezcands %>% 
@@ -27,10 +35,6 @@ zips_by_prezcands %>%
   count(pres_cand, contributor_zip5) %>% 
   filter(n > 1)
 
-#example of repeated zip?
-zips_by_prezcands %>% 
-  filter(pres_cand == "Booker, Cory A.",
-         contributor_zip5 == "00907")
 
 
 #### BRING IN ZIP CODE LOOKUP TABLE #####
@@ -56,15 +60,15 @@ ziplookup %>%
 
 
 # join 
-joined <- left_join(contribs_by_zip, ziplookup, by = c("zip5" = "zip_code"))
+joined <- left_join(zips_by_prezcands, ziplookup, by = c("contributor_zip5" = "zip_code"))
 
 #create column for just last name of candidate
-joined$lastname <- str_split(joined$name, ",", simplify = TRUE)[,1]
+joined$lastname <- str_split(joined$pres_cand, ",", simplify = TRUE)[,1]
 
 #final table
 byzip_bycand <- joined %>% 
   ungroup %>% 
-  select(lastname, everything(), -name) %>% 
+  select(lastname, everything(), -pres_cand) %>% 
   mutate(fips = paste0(state_fips, county_fips)) 
 
 byzip_bycand
@@ -89,14 +93,14 @@ write_csv(top10_byzip_bycand, "output/top10_byzip_bycand.csv")
 
 #any common zips?
 top10_byzip_bycand %>% 
-  count(zip5, city) %>% 
+  count(contributor_zip5, city) %>% 
   arrange(desc(n))
   
 
 
 # reshape to wide format as an alternative table structure ####
 test <- byzip_bycand %>% 
-  select(lastname, zip5, sumcontribs)
+  select(lastname, contributor_zip5, sumcontribs)
 
 test_wide <- test %>% 
   spread(lastname, sumcontribs)
@@ -129,18 +133,6 @@ bycounty_bycand %>%
 write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
 
 
-#reshaped version to wide
-test_c <- bycounty_bycand %>%
-  select(lastname, fips, sum_in_county)
-
-test_c_wide <- test_c %>%
-  spread(lastname, sum_in_county)
-
-bycounty_bycand_wide <- test_c_wide
-
-#write to file
-write_csv(bycounty_bycand_wide, "output/bycounty_bycand_wide.csv")
-
 
 
 #### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
@@ -150,14 +142,14 @@ cand1 <- "Booker"
 
 z_cand1 <- byzip_bycand %>% 
   filter(lastname == cand1) %>% 
-  select(zip5, cand1_contribs = sumcontribs)
+  select(contributor_zip5, cand1_contribs = sumcontribs)
   
 # select second candidate
 cand2 <- "Harris"
 
 z_cand2 <- byzip_bycand %>% 
   filter(lastname == cand2) %>% 
-  select(zip5, cand2_contribs = sumcontribs)  
+  select(contributor_zip5, cand2_contribs = sumcontribs)  
 
 
 ### join to compare cand1 and cand2 in each zip
@@ -177,7 +169,7 @@ zipcompare <- zipcompare %>%
          !!cand2:=cand2_contribs) 
 
 #join with zip lookup table
-joined_temp <- left_join(zipcompare, ziplookup, by = c("zip5" = "zip_code"))
+joined_temp <- left_join(zipcompare, ziplookup, by = c("contributor_zip5" = "zip_code"))
 zipcompare <- joined_temp
 
 #save to file
