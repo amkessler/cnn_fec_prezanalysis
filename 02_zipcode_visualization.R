@@ -56,7 +56,7 @@ zip_map <- zip_map %>%
 
 #labels
 labs1 <- lapply(seq(nrow(zip_map)), function(i) {
-  paste0( '<p>', 'Zip code: ', '<strong>', zip_map[i, "zip5"], '</strong></p>',
+  paste0( '<p>', 'Zip code: ', '<strong>', zip_map[i, "contributor_zip5"], '</strong></p>',
           '<p></p>', 
           "1st quarter donations: $", zip_map[i, "sumcontribs"]
   ) 
@@ -96,7 +96,7 @@ zipcompare
 #give it a new name for this process
 zipcompare_map <- zipcompare
 
-zipcompare_map$GEOID <- zipcompare_map$zip5
+zipcompare_map$GEOID <- zipcompare_map$contributor_zip5
 
 #remove any negative values 
 zipcompare_map <- zipcompare_map %>% 
