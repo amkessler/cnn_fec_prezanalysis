@@ -65,7 +65,7 @@ joined <- left_join(zips_by_prezcands, ziplookup, by = c("contributor_zip5" = "z
 #create column for just last name of candidate
 joined$lastname <- str_split(joined$pres_cand, ",", simplify = TRUE)[,1]
 
-#final table
+#resulting table
 byzip_bycand <- joined %>% 
   ungroup %>% 
   select(lastname, everything(), -pres_cand) %>% 
@@ -73,12 +73,27 @@ byzip_bycand <- joined %>%
 
 byzip_bycand
 
+
+### ADDING IN IRS ZIP CODE ECONOMIC DATA #### -----------------------------------
+
+irs_zip_raw <- read_csv("16zpallagi.csv", 
+                        col_types = cols(STATEFIPS = col_character(), 
+                                         zipcode = col_character()))
+
+
+
+
+
+
 #write to file
 write_csv(byzip_bycand, "output/byzip_bycand.csv")
 
 
 
-#### TOP 10 ZIPS FOR EACH CANDIDATE ####
+
+
+
+#### TOP 10 ZIPS FOR EACH CANDIDATE #### -------------------------------------
 
 #group by zip
 top10_byzip_bycand <- byzip_bycand %>% 
