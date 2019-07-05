@@ -169,21 +169,22 @@ write_csv(byzip_bycand, "output/byzip_bycand.csv")
 
 
 
-#### TOP 10 ZIPS FOR EACH CANDIDATE #### -------------------------------------
+#### TOP ZIPS FOR EACH CANDIDATE #### -------------------------------------
 
 #group by zip
-top10_byzip_bycand <- byzip_bycand %>% 
+topzipsonly_bycand <- byzip_bycand %>% 
   group_by(lastname) %>% 
-  top_n(n = 10, wt = sumcontribs) %>% #pulls top 10 by sumcontribs value
+  top_n(n = 50, wt = sumcontribs) %>% #pulls top 10 by sumcontribs value
   ungroup()
 
-top10_byzip_bycand
+topzipsonly_bycand <- topzipsonly_bycand %>% 
+  arrange(lastname, desc(sumcontribs))
 
 #write to file
-write_csv(top10_byzip_bycand, "output/top10_byzip_bycand.csv")
+write_csv(topzipsonly_bycand, "output/topzipsonly_bycand.csv")
 
 #any common zips?
-top10_byzip_bycand %>% 
+topzipsonly_bycand %>% 
   count(contributor_zip5, city) %>% 
   arrange(desc(n))
   
