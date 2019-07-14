@@ -5,6 +5,7 @@ library(tidyverse)
 library(lubridate)
 library(janitor)
 library(dbplyr)
+library(writexl)
 
 #list the tables in the database
 src_dbi(con)
@@ -190,17 +191,52 @@ topzipsonly_bycand %>%
   
 
 
-# reshape to wide format as an alternative table structure ####
+# RESHAPE TO WIDE format as an alternative table structure ####
 test <- byzip_bycand %>% 
   select(lastname, contributor_zip5, sumcontribs)
 
 test_wide <- test %>% 
   spread(lastname, sumcontribs)
 
-byzip_bycand_wide <- test_wide
+# add zip code lookup info
+# join 
+joined_wide <- left_join(test_wide, ziplookup, by = c("contributor_zip5" = "zip_code"))
+
+names(joined_wide)
+
+#select column order
+byzip_bycand_wide <- joined_wide %>% 
+  select(
+    zipcode = contributor_zip5,
+    city,
+    state,
+    state_fips,
+    latitude,
+    longitude,
+    everything()
+  )
+
+#take out the state-wide totals, zip = 0. Also remove "other" designation, 99999
+byzip_bycand_wide <- byzip_bycand_wide %>% 
+  filter(zipcode != "0",
+         zipcode != "00000",
+         zipcode != "99999")
+
 
 #write to file
 write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
+write_xlsx(byzip_bycand_wide, "output/byzip_bycand_wide.xlsx")
+
+
+#now pull out just California, for Harris analysis
+byzip_bycand_wide_CAonly <- byzip_bycand_wide %>% 
+  filter(state == "CA")
+
+#write to file
+write_csv(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.csv")
+write_xlsx(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.xlsx")
+
+
 
 
 
