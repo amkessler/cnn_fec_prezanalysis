@@ -5,6 +5,7 @@ library(tidyverse)
 library(lubridate)
 library(janitor)
 library(dbplyr)
+options(scipen = 999)
 
 
 # get prez committee IDs from candidate table
@@ -55,12 +56,33 @@ prez_names <- prez_cands %>%
 
 tempp1 <- inner_join(prez_bydate, prez_names, by = c("filer_committee_id_number" = "fec_committee_id"))
 
+#filter for only Q2
+tempp1 <- tempp1 %>% 
+  filter(contribution_date >= as_date("2019-05-01"))
+
+
 #final table
 prez_bydate <- tempp1 %>% 
   select(filer_committee_id_number, name, contribution_date, sumcontribs) %>% 
   arrange(name, contribution_date)
 
 #save to file
-write_csv(prez_by_date, "output/prez_by_date.csv")
+write_csv(prez_bydate, "output/prez_by_date.csv")
 
+prez_bydate
+
+#### PLOTS ####
+
+p <- ggplot(data = prez_bydate, aes(contribution_date, sumcontribs)) +
+  geom_line(color = "steelblue", size = 1) +
+  # geom_point(color = "steelblue") +
+  labs(title = "Q2 Daily Totals - Individual contributions (itemized)",
+       subtitle = "",
+       y = "Dollars", x = "") + 
+  facet_wrap(~ name) +
+  theme(
+    strip.text.x = element_text(margin = margin(2, 0, 2, 0))
+  )
+
+p
 
