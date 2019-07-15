@@ -175,7 +175,7 @@ write_csv(byzip_bycand, "output/byzip_bycand.csv")
 #group by zip
 topzipsonly_bycand <- byzip_bycand %>% 
   group_by(lastname) %>% 
-  top_n(n = 50, wt = sumcontribs) %>% #pulls top 10 by sumcontribs value
+  top_n(n = 10, wt = sumcontribs) %>% #pulls top 10 by sumcontribs value
   ungroup()
 
 topzipsonly_bycand <- topzipsonly_bycand %>% 
@@ -211,9 +211,10 @@ byzip_bycand_wide <- joined_wide %>%
     city,
     state,
     state_fips,
-    latitude,
-    longitude,
-    everything()
+    Harris,
+    everything(),
+    -county,
+    -county_fips
   )
 
 #take out the state-wide totals, zip = 0. Also remove "other" designation, 99999
@@ -224,7 +225,7 @@ byzip_bycand_wide <- byzip_bycand_wide %>%
 
 
 #write to file
-write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
+# write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
 write_xlsx(byzip_bycand_wide, "output/byzip_bycand_wide.xlsx")
 
 
@@ -233,7 +234,7 @@ byzip_bycand_wide_CAonly <- byzip_bycand_wide %>%
   filter(state == "CA")
 
 #write to file
-write_csv(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.csv")
+# write_csv(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.csv")
 write_xlsx(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.xlsx")
 
 
