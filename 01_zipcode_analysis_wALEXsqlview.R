@@ -38,7 +38,11 @@ zips_by_prezcands %>%
 
 
 
-#### BRING IN ZIP CODE LOOKUP TABLE #####
+
+
+
+
+#### BRING IN ZIP CODE LOOKUP TABLE ##### ------------------
 
 ## we'll add named location associated with each zip code
 
@@ -191,7 +195,9 @@ topzipsonly_bycand %>%
   
 
 
-# RESHAPE TO WIDE format as an alternative table structure ####
+
+
+#### RESHAPE TO WIDE format as an alternative table structure #### ------------------------
 test <- byzip_bycand %>% 
   select(lastname, contributor_zip5, sumcontribs)
 
@@ -229,7 +235,7 @@ byzip_bycand_wide <- byzip_bycand_wide %>%
 write_xlsx(byzip_bycand_wide, "output/byzip_bycand_wide.xlsx")
 
 
-#now pull out just California, for Harris analysis
+#now pull out just California, for Harris analysis ####
 byzip_bycand_wide_CAonly <- byzip_bycand_wide %>% 
   filter(state == "CA")
 
@@ -304,3 +310,29 @@ zipcompare <- joined_temp
 #save to file
 saveRDS(zipcompare, "zipcompare.rds")
 
+
+
+
+#### STATEWIDE TOTALS ##### -------------------------------------------
+
+bystate_bycand <- byzip_bycand %>% 
+  group_by(lastname, state) %>% 
+  summarise(sum_amt = sum(sumcontribs))
+
+#CA only
+bystate_bycand_CAonly <- bystate_bycand %>% 
+  filter(state == "CA") %>% 
+  arrange(desc(sum_amt))
+
+#Top N only
+#group by zip
+topstatesonly_bycand <- bystate_bycand %>% 
+  group_by(lastname) %>% 
+  top_n(n = 10, wt = sum_amt) %>% #pulls top 10 by sumcontribs value
+  ungroup()
+
+topstatesonly_bycand <- topstatesonly_bycand %>% 
+  arrange(lastname, desc(sum_amt))
+
+#write to file
+write_csv(topstatesonly_bycand, "output/topstatesonly_bycand.csv")
