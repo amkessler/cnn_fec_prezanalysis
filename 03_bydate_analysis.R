@@ -33,11 +33,15 @@ glimpse(contribs_db)
 
 #filter out only individual contributions, and active ones
 #download locally to dataframe
-## ***NOTE: This will change per Alex's suggestions
 prez_contribs <- contribs_db %>% 
-  filter(status == "ACTIVE",
-         entity_type == "IND",
-         filer_committee_id_number %in% prez_ids) %>% 
+  mutate(form_type = str_to_upper(form_type)) %>% 
+  filter(
+    active==TRUE,
+    filer_committee_id_number %in% prez_ids,
+    form_type %in% c("SA17A", #individuals other than cmtes
+                     "SA18", #transfers from other cmtes
+                     "SB28A") #refunds to individuals
+    ) %>% 
   collect()
 
 
