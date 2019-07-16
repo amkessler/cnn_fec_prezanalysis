@@ -50,7 +50,7 @@ zip_map %>%
   count(lastname)
 
 zip_map <- zip_map %>% 
-  filter(lastname == "Sanders")
+  filter(lastname == "Harris")
 
 
 #### MAPPING POINTS #####
@@ -138,11 +138,12 @@ m2 <- leaflet(zipcompare_map) %>%
              lat = ~latitude, 
              weight = .4,
              stroke = FALSE,
-             fillOpacity = .45,
+             fillOpacity = .35,
              radius = ~sqrt(advantage) * 400, 
              fillColor = ~factpal(winner),
              label = lapply(labs2, HTML)
   ) %>%
+  addLegend("bottomright", pal = factpal, values = ~winner) %>% 
   addControl("Individual donations (itemized) by zip code", position = "topright") %>% 
   setView(-96, 37.8, zoom=4)
 
@@ -188,7 +189,7 @@ m4 <- leaflet(zipcompare_map) %>%
              weight = .4,
              stroke = FALSE,
              fillOpacity = .45,
-             radius = ~sqrt(advantage) * 40,
+             radius = ~sqrt(advantage) * 15,
              fillColor = ~factpal(winner),
              label = lapply(labs2, HTML)
   ) %>%
@@ -198,10 +199,59 @@ m4 <- leaflet(zipcompare_map) %>%
 
 m4
 
-#save to RDS object
-# saveRDS(m4, "lamap_petevsliz.rds")
-
 #save to frameable file for CMS
 htmlwidgets::saveWidget(frameableWidget(m4),'cand_zipcompare_la.html')
+
+
+
+
+
+#### COMPARISON MAP OF CALIFORNIA ####
+
+m5 <- leaflet(zipcompare_map) %>%
+  # addTiles() %>%
+  addProviderTiles(providers$Stamen.TonerLite) %>%
+  addCircles(lng = ~longitude,
+             lat = ~latitude,
+             weight = .4,
+             stroke = FALSE,
+             fillOpacity = .35,
+             radius = ~sqrt(advantage) * 40,
+             fillColor = ~factpal(winner),
+             label = lapply(labs2, HTML)
+  ) %>%
+  addLegend("bottomright", pal = factpal, values = ~winner) %>% 
+  addControl("Individual donations (itemized) by zip code", position = "topright") %>%
+  setView(-119.7871, 36.1078, zoom=7)
+
+m5
+
+#save to frameable file for CMS
+htmlwidgets::saveWidget(frameableWidget(m5),'cand_zipcompare_california.html')
+
+
+
+#### COMPARISON MAP OF ONLY SF AREA ####
+
+m6 <- leaflet(zipcompare_map) %>%
+  # addTiles() %>%
+  addProviderTiles(providers$Stamen.TonerLite) %>%
+  addCircles(lng = ~longitude,
+             lat = ~latitude,
+             weight = .4,
+             stroke = FALSE,
+             fillOpacity = .35,
+             radius = ~sqrt(advantage) * 10,
+             fillColor = ~factpal(winner),
+             label = lapply(labs2, HTML)
+  ) %>%
+  addLegend("bottomright", pal = factpal, values = ~winner) %>% 
+  addControl("Individual donations (itemized) by zip code", position = "topright") %>%
+  setView(-122.4194, 37.7749, zoom=10)
+
+m6
+
+#save to frameable file for CMS
+htmlwidgets::saveWidget(frameableWidget(m6),'cand_zipcompare_la.html')
 
 

@@ -1,11 +1,13 @@
 #first we'll run script step 00 to connect to db
 source("00_connecttodb.R")
 
+library(matrixStats)
 library(tidyverse)
 library(lubridate)
 library(janitor)
 library(dbplyr)
 library(writexl)
+library(matrixStats)
 
 #list the tables in the database
 src_dbi(con)
@@ -235,7 +237,9 @@ byzip_bycand_wide <- byzip_bycand_wide %>%
 write_xlsx(byzip_bycand_wide, "output/byzip_bycand_wide.xlsx")
 
 
-#now pull out just California, for Harris analysis ####
+
+
+# CALIFORNIA ONLY - FOR HARRIS ANALSYSIS #### --------------------------------------------------------
 byzip_bycand_wide_CAonly <- byzip_bycand_wide %>% 
   filter(state == "CA")
 
@@ -243,11 +247,18 @@ byzip_bycand_wide_CAonly <- byzip_bycand_wide %>%
 # write_csv(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.csv")
 write_xlsx(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.xlsx")
 
+#Harris analysis
+
+ca_harriszips <- byzip_bycand_wide_CAonly
+names(ca_harriszips)
 
 
 
 
-#### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS ####
+
+
+
+#### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS #### ---------------------------------------------
 ## For Magic Wall
 
 #start with existing zip breakdowns
@@ -273,7 +284,7 @@ write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
 #### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
 
 # select first candidate
-cand1 <- "Booker"
+cand1 <- "Buttigieg"
 
 z_cand1 <- byzip_bycand %>% 
   filter(lastname == cand1) %>% 
