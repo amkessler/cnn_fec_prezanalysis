@@ -5,6 +5,7 @@ library(tidyverse)
 library(lubridate)
 library(janitor)
 library(dbplyr)
+library(writexl)
 options(scipen = 999)
 
 
@@ -34,15 +35,28 @@ glimpse(contribs_db)
 #filter out only individual contributions, and active ones
 #download locally to dataframe
 prez_contribs <- contribs_db %>% 
-  mutate(form_type = str_to_upper(form_type)) %>% 
   filter(
-    active==TRUE,
     filer_committee_id_number %in% prez_ids,
-    form_type %in% c("SA17A", #individuals other than cmtes
-                     "SA18", #transfers from other cmtes
-                     "SB28A") #refunds to individuals
+    active==TRUE,
+    status=="ACTIVE",
+    entity_type=="IND"
     ) %>% 
   collect()
+
+
+#alternate method
+# prez_contribs <- contribs_db %>% 
+#   mutate(form_type = str_to_upper(form_type)) %>% 
+#   filter(
+#     active==TRUE,
+#     filer_committee_id_number %in% prez_ids,
+#     form_type %in% c("SA17A", #individuals other than cmtes
+#                      "SA18", #transfers from other cmtes
+#                      "SB28A") #refunds to individuals
+#   ) %>% 
+#   collect()
+
+
 
 
 # format date
@@ -62,7 +76,7 @@ tempp1 <- inner_join(prez_bydate, prez_names, by = c("filer_committee_id_number"
 
 #filter for only Q2
 tempp1 <- tempp1 %>% 
-  filter(contribution_date >= as_date("2019-05-01"))
+  filter(contribution_date >= as_date("2019-04-01"))
 
 
 #final table
@@ -71,12 +85,13 @@ prez_bydate <- tempp1 %>%
   arrange(name, contribution_date)
 
 #save to file
-write_csv(prez_bydate, "output/prez_by_date.csv")
+write_xlsx(prez_bydate, "output/prez_by_date.xlsx")
 
 prez_bydate
 
 #### PLOTS ####
 
+#faceted with all cands
 p <- ggplot(data = prez_bydate, aes(contribution_date, sumcontribs)) +
   geom_line(color = "steelblue", size = 1) +
   # geom_point(color = "steelblue") +
