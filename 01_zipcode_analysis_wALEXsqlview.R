@@ -281,17 +281,28 @@ write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
 
 
 
-#### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
+
+#### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE #### ---------------
+
+#ensure harris is second factor each time by adding x
+byzip_bycand <- byzip_bycand %>% 
+  mutate(
+    lastname = str_replace_all(lastname, "Harris", "xHarris")
+  )
+
+byzip_bycand %>% 
+  count(lastname) %>% 
+  arrange(desc(lastname))
 
 # select first candidate
-cand1 <- "Buttigieg"
+cand1 <- "Warren"
 
 z_cand1 <- byzip_bycand %>% 
   filter(lastname == cand1) %>% 
   select(contributor_zip5, cand1_contribs = sumcontribs)
   
 # select second candidate
-cand2 <- "Harris"
+cand2 <- "xHarris"
 
 z_cand2 <- byzip_bycand %>% 
   filter(lastname == cand2) %>% 
