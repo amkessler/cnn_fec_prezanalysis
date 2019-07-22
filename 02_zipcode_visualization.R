@@ -163,7 +163,7 @@ m2_nyc <- leaflet(zipcompare_map) %>%
              weight = .4,
              stroke = FALSE,
              fillOpacity = .45,
-             radius = ~sqrt(advantage) * 3, 
+             radius = ~sqrt(advantage) * 6, 
              fillColor = ~factpal(winner),
              label = lapply(labs2, HTML)
   ) %>%

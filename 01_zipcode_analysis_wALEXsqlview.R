@@ -295,7 +295,7 @@ byzip_bycand %>%
   arrange(desc(lastname))
 
 # select first candidate
-cand1 <- "Warren"
+cand1 <- "Buttigieg"
 
 z_cand1 <- byzip_bycand %>% 
   filter(lastname == cand1) %>% 
