@@ -24,6 +24,11 @@ glimpse(actblue_all)
 actblue_all %>% 
   count(entity_type)
 
+actblue_all %>% 
+  count(donor_candidate_last_name)
+
+
+
 #pull out slice to view
 actblue_all %>% 
   head() %>% 
