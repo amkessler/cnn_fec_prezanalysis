@@ -246,7 +246,7 @@ top10_byzip_bycand <- byzip_bycand %>%
 top10_byzip_bycand
 
 #write to file
-write_csv(top10_byzip_bycand, "output/top10_byzip_bycand.csv")
+# write_csv(top10_byzip_bycand, "output/top10_byzip_bycand.csv")
 
 #any common zips?
 top10_byzip_bycand %>% 
@@ -265,7 +265,7 @@ test_wide <- test %>%
 byzip_bycand_wide <- test_wide
 
 #write to file
-write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
+# write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
 
 
 
@@ -287,7 +287,7 @@ bycounty_bycand %>%
   filter(n > 1)
 
 #write to file
-write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
+# write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
 
 
 #reshaped version to wide
@@ -300,7 +300,7 @@ test_c_wide <- test_c %>%
 bycounty_bycand_wide <- test_c_wide
 
 #write to file
-write_csv(bycounty_bycand_wide, "output/bycounty_bycand_wide.csv")
+# write_csv(bycounty_bycand_wide, "output/bycounty_bycand_wide.csv")
 
 
 
