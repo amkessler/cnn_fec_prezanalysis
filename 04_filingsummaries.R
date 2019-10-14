@@ -35,4 +35,4 @@ prezdata %>%
   View()
 
 #export our results to an Excel file 
-write_xlsx(prezdata, "prezdata_summaries.xlsx") #this file show up in your existing folder
+# write_xlsx(prezdata, "prezdata_summaries.xlsx") #this file show up in your existing folder
