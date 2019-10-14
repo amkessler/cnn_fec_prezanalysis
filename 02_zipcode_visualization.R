@@ -1,5 +1,5 @@
 source("01_zipcode_analysis_wALEXsqlview.R")
-
+source("01_zipcode_analysis.R")
 
 library(tidyverse)
 library(janitor)
@@ -82,7 +82,7 @@ m1 <- leaflet(zip_map) %>%
 m1
 
 #save to frameable file for CMS
-htmlwidgets::saveWidget(frameableWidget(m1),'candidate_byzip.html')
+# htmlwidgets::saveWidget(frameableWidget(m1),'candidate_byzip.html')
 
 
 
@@ -150,7 +150,7 @@ m2 <- leaflet(zipcompare_map) %>%
 m2
 
 #save to frameable file for CMS
-htmlwidgets::saveWidget(frameableWidget(m2),'cand_zipcompare.html')
+# htmlwidgets::saveWidget(frameableWidget(m2),'cand_zipcompare.html')
 
 
 #### COMPARISON MAP OF ONLY NEW YORK CITY ####
@@ -174,7 +174,7 @@ m2_nyc <- leaflet(zipcompare_map) %>%
 m2_nyc
 
 #save to frameable file for CMS
-htmlwidgets::saveWidget(frameableWidget(m2_nyc),'cand_zipcompare_nyc.html')
+# htmlwidgets::saveWidget(frameableWidget(m2_nyc),'cand_zipcompare_nyc.html')
 
 
 
@@ -200,7 +200,7 @@ m4 <- leaflet(zipcompare_map) %>%
 m4
 
 #save to frameable file for CMS
-htmlwidgets::saveWidget(frameableWidget(m4),'cand_zipcompare_la.html')
+# htmlwidgets::saveWidget(frameableWidget(m4),'cand_zipcompare_la.html')
 
 
 
@@ -227,7 +227,7 @@ m5 <- leaflet(zipcompare_map) %>%
 m5
 
 #save to frameable file for CMS
-htmlwidgets::saveWidget(frameableWidget(m5),'cand_zipcompare_california.html')
+# htmlwidgets::saveWidget(frameableWidget(m5),'cand_zipcompare_california.html')
 
 
 
@@ -252,6 +252,6 @@ m6 <- leaflet(zipcompare_map) %>%
 m6
 
 #save to frameable file for CMS
-htmlwidgets::saveWidget(frameableWidget(m6),'cand_zipcompare_la.html')
+# htmlwidgets::saveWidget(frameableWidget(m6),'cand_zipcompare_la.html')
 
 
