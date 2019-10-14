@@ -1,4 +1,4 @@
-source("01_zipcode_analysis_wALEXsqlview.R")
+# source("01_zipcode_analysis_wALEXsqlview.R")
 source("01_zipcode_analysis.R")
 
 library(tidyverse)
