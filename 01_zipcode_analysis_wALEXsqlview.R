@@ -169,7 +169,7 @@ byzip_bycand <- left_join(byzip_bycand_joined1, irs_zips_agi_grouped, by = c("co
 
 
 #write to file
-write_csv(byzip_bycand, "output/byzip_bycand.csv")
+# write_csv(byzip_bycand, "output/byzip_bycand.csv")
 
 
 
@@ -188,7 +188,7 @@ topzipsonly_bycand <- topzipsonly_bycand %>%
   arrange(lastname, desc(sumcontribs))
 
 #write to file
-write_csv(topzipsonly_bycand, "output/topzipsonly_bycand.csv")
+# write_csv(topzipsonly_bycand, "output/topzipsonly_bycand.csv")
 
 #any common zips?
 topzipsonly_bycand %>% 
@@ -239,44 +239,44 @@ byzip_bycand_wide <- byzip_bycand_wide %>%
 
 
 
-# CALIFORNIA ONLY - FOR HARRIS ANALSYSIS #### --------------------------------------------------------
-byzip_bycand_wide_CAonly <- byzip_bycand_wide %>% 
-  filter(state == "CA")
-
-#write to file
-# write_csv(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.csv")
-write_xlsx(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.xlsx")
-
-#Harris analysis
-
-ca_harriszips <- byzip_bycand_wide_CAonly
-names(ca_harriszips)
-
-
+# # CALIFORNIA ONLY - FOR HARRIS ANALSYSIS #### --------------------------------------------------------
+# byzip_bycand_wide_CAonly <- byzip_bycand_wide %>% 
+#   filter(state == "CA")
+# 
+# #write to file
+# # write_csv(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.csv")
+# write_xlsx(byzip_bycand_wide_CAonly, "output/byzip_bycand_wide_CAonly.xlsx")
+# 
+# #Harris analysis
+# 
+# ca_harriszips <- byzip_bycand_wide_CAonly
+# names(ca_harriszips)
 
 
 
 
 
-#### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS #### ---------------------------------------------
-## For Magic Wall
-
-#start with existing zip breakdowns
-byzip_bycand
-
-#group by candidate, county
-bycounty_bycand <- byzip_bycand %>% 
-  filter(!is.na(county)) %>% 
-  group_by(lastname, fips, county, state) %>% 
-  summarise(sum_in_county = sum(sumcontribs)) 
-
-#any repeated fips?
-bycounty_bycand %>% 
-  count(lastname, fips) %>% 
-  filter(n > 1)
-
-#write to file
-write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
+# 
+# 
+# #### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS #### ---------------------------------------------
+# ## For Magic Wall
+# 
+# #start with existing zip breakdowns
+# byzip_bycand
+# 
+# #group by candidate, county
+# bycounty_bycand <- byzip_bycand %>% 
+#   filter(!is.na(county)) %>% 
+#   group_by(lastname, fips, county, state) %>% 
+#   summarise(sum_in_county = sum(sumcontribs)) 
+# 
+# #any repeated fips?
+# bycounty_bycand %>% 
+#   count(lastname, fips) %>% 
+#   filter(n > 1)
+# 
+# #write to file
+# write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
 
 
 
@@ -357,4 +357,4 @@ topstatesonly_bycand <- topstatesonly_bycand %>%
   arrange(lastname, desc(sum_amt))
 
 #write to file
-write_csv(topstatesonly_bycand, "output/topstatesonly_bycand.csv")
+# write_csv(topstatesonly_bycand, "output/topstatesonly_bycand.csv")
