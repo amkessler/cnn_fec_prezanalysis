@@ -15,31 +15,43 @@ contribs_db <- tbl(con, "cycle_2020_schedulea")
 glimpse(contribs_db)
 
 #filter out only individual contributions, and active ones
-#create zip5 field by pulling out just first five digits
+#create contributor_zip5 field by pulling out just first five digits
 contribs_db <- contribs_db %>% 
   filter(active==TRUE,
          status == "ACTIVE",
          entity_type == "IND") %>% 
   mutate(
-    zip5 = str_sub(str_trim(contributor_zip), 1, 5)
+    contributor_zip5 = str_sub(str_trim(contributor_zip), 1, 5)
   )
 
 #group by zip
-contribs_db %>% 
-  group_by(filer_committee_id_number, zip5) %>% 
-  summarise(sumcontribs = sum(contribution_amount)) %>% 
-  arrange(desc(sumcontribs))
+# contribs_db %>% 
+#   group_by(filer_committee_id_number, zip5) %>% 
+#   summarise(sumcontribs = sum(contribution_amount)) %>% 
+#   arrange(desc(sumcontribs))
 
 #to see the actual SQL statement generated add show_query() to the above
 
 #collect into local dataframe for joining
 #group by zip
 by_zip_and_filer <- contribs_db %>% 
-  group_by(filer_committee_id_number, zip5) %>% 
+  group_by(filer_committee_id_number, contributor_zip5) %>% 
   summarise(sumcontribs = sum(contribution_amount)) %>% 
   arrange(desc(sumcontribs)) %>% 
   ungroup() %>% 
   collect()
+
+
+#any repeated zips?
+by_zip_and_filer %>% 
+  count(filer_committee_id_number, contributor_zip5) %>% 
+  filter(n > 1)
+
+
+#any missing zips?
+by_zip_and_filer %>% 
+  filter(is.na(contributor_zip5))
+
 
 
 
@@ -60,23 +72,23 @@ candnames <- cand_db %>%
 #join
 contribs_by_zip <- inner_join(by_zip_and_filer, candnames, by = c("filer_committee_id_number" = "fec_committee_id"))
 
-#see if there are any missing zips and save for review
+#see if there are any missing zips 
 zip_missing <- contribs_by_zip %>% 
-  filter(is.na(zip5))
+  filter(is.na(contributor_zip5))
 
 #reorder columns, arrange
 contribs_by_zip <- contribs_by_zip %>% 
-  filter(!is.na(zip5)) %>% 
+  filter(!is.na(contributor_zip5)) %>% 
   select(name, everything()) %>% 
   arrange(name, desc(sumcontribs))
 
 #any missing zips?
 contribs_by_zip %>% 
-  filter(is.na(zip5))
+  filter(is.na(contributor_zip5))
 
 #any repeated zips?
 contribs_by_zip %>% 
-  count(name, zip5) %>% 
+  count(name, contributor_zip5) %>% 
   filter(n > 1)
 
 
@@ -104,7 +116,7 @@ ziplookup %>%
 
 
 # join 
-joined <- left_join(contribs_by_zip, ziplookup, by = c("zip5" = "zip_code"))
+joined <- left_join(contribs_by_zip, ziplookup, by = c("contributor_zip5" = "zip_code"))
 
 #create column for just last name of candidate
 joined$lastname <- str_split(joined$name, ",", simplify = TRUE)[,1]
@@ -137,14 +149,14 @@ write_csv(top10_byzip_bycand, "output/top10_byzip_bycand.csv")
 
 #any common zips?
 top10_byzip_bycand %>% 
-  count(zip5, city) %>% 
+  count(contributor_zip5, city) %>% 
   arrange(desc(n))
   
 
 
 # reshape to wide format as an alternative table structure ####
 test <- byzip_bycand %>% 
-  select(lastname, zip5, sumcontribs)
+  select(lastname, contributor_zip5, sumcontribs)
 
 test_wide <- test %>% 
   spread(lastname, sumcontribs)
@@ -198,14 +210,14 @@ cand1 <- "Booker"
 
 z_cand1 <- byzip_bycand %>% 
   filter(lastname == cand1) %>% 
-  select(zip5, cand1_contribs = sumcontribs)
+  select(contributor_zip5, cand1_contribs = sumcontribs)
   
 # select second candidate
 cand2 <- "Harris"
 
 z_cand2 <- byzip_bycand %>% 
   filter(lastname == cand2) %>% 
-  select(zip5, cand2_contribs = sumcontribs)  
+  select(contributor_zip5, cand2_contribs = sumcontribs)  
 
 
 ### join to compare cand1 and cand2 in each zip
@@ -225,7 +237,7 @@ zipcompare <- zipcompare %>%
          !!cand2:=cand2_contribs) 
 
 #join with zip lookup table
-joined_temp <- left_join(zipcompare, ziplookup, by = c("zip5" = "zip_code"))
+joined_temp <- left_join(zipcompare, ziplookup, by = c("contributor_zip5" = "zip_code"))
 zipcompare <- joined_temp
 
 #save to file
