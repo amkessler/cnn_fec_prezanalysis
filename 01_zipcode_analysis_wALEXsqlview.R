@@ -232,9 +232,9 @@ byzip_bycand_wide <- byzip_bycand_wide %>%
          zipcode != "99999")
 
 
-#write to file
+#write final results to file
 # write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
-write_xlsx(byzip_bycand_wide, "output/byzip_bycand_wide.xlsx")
+# write_xlsx(byzip_bycand_wide, "output/byzip_bycand_wide.xlsx")
 
 
 
