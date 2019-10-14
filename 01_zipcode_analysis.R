@@ -72,7 +72,7 @@ candnames <- cand_db %>%
 #join
 contribs_by_zip <- inner_join(by_zip_and_filer, candnames, by = c("filer_committee_id_number" = "fec_committee_id"))
 
-#see if there are any missing zips 
+#see if there are any missing zips and save for reference 
 zip_missing <- contribs_by_zip %>% 
   filter(is.na(contributor_zip5))
 
@@ -130,7 +130,108 @@ byzip_bycand <- joined %>%
 byzip_bycand
 
 #write to file
-write_csv(byzip_bycand, "output/byzip_bycand.csv")
+# write_csv(byzip_bycand, "output/byzip_bycand.csv")
+
+
+
+
+
+### ADDING IN IRS ZIP CODE ECONOMIC DATA #### -----------------------------------
+
+irs_zip_raw <- read_csv("16zpallagi.csv", 
+                        col_types = cols(STATEFIPS = col_character(), 
+                                         zipcode = col_character()))
+
+irszips_allcols <- irs_zip_raw %>% 
+  clean_names()
+
+names(irszips_allcols)
+
+
+#looking for any 4 digit zips by mistake?
+irszips_allcols %>% 
+  filter(str_length(zipcode)==4)
+
+#fix 4-digit zips to add back preceding 0
+zipscorrected <- if_else(str_length(irszips_allcols$zipcode)==4, paste0("0", irszips_allcols$zipcode), irszips_allcols$zipcode)
+irszips_allcols$zipscorrected <- zipscorrected
+#check cols
+irszips_allcols %>% 
+  select(zipcode, zipscorrected) %>% 
+  filter(zipcode != zipscorrected)
+#make replacement
+irszips_allcols$zipcode <- irszips_allcols$zipscorrected
+
+
+#select just AGI columns
+irs_zips_agi <- irszips_allcols %>% 
+  select(statefips, state, zipcode, agi_stub, total_returns = n1, agi_value = a00100)
+
+#take out the state-wide totals, zip = 0. Also remove "other" designation, 99999
+irs_zips_agi <- irs_zips_agi %>% 
+  filter(zipcode != "0",
+         zipcode != "99999")
+
+head(irs_zips_agi)
+
+
+#looking for any 4 digit zips by mistake?
+irs_zips_agi %>% 
+  filter(str_length(zipcode)==4)
+
+
+### create column translating agi_stub to description, per documentation
+# 1 = $1 under $25,000
+# 2 = $25,000 under $50,000
+# 3 = $50,000 under $75,000
+# 4 = $75,000 under $100,000
+# 5 = $100,000 under $200,000
+# 6 = $200,000 or more
+
+irs_zips_agi <- irs_zips_agi %>% 
+  mutate(
+    agi_stubcategory = case_when(
+      agi_stub == 1 ~ "under $25K",
+      agi_stub == 2 ~ "$25K to under $50K",
+      agi_stub == 3 ~ "$50K to under $75K",
+      agi_stub == 4 ~ "$75K to under $100K",
+      agi_stub == 5 ~ "$100K to under $200K",
+      agi_stub == 6 ~ "$200K or more",
+      TRUE ~ "other"
+    )
+  )
+
+
+#sum up all agi/returns for each zip
+irs_zips_agi_grouped <- irs_zips_agi %>% 
+  group_by(zipcode) %>% 
+  summarise(num_returns = sum(total_returns), total_agi_value = sum(agi_value)) %>% 
+  mutate(avg_agi = total_agi_value/num_returns*1000)
+
+head(irs_zips_agi_grouped)
+
+#rank by agi
+irs_zips_agi_grouped <- irs_zips_agi_grouped %>% 
+  mutate(avg_agi_rank = rank(desc(avg_agi))) %>% 
+  arrange(avg_agi_rank)
+
+irs_zips_agi_grouped
+
+# join candidates by zip with processed IRS table
+byzip_bycand <- left_join(byzip_bycand, irs_zips_agi_grouped, by = c("contributor_zip5" = "zipcode"))
+
+
+#write to file
+# write_csv(byzip_bycand, "output/byzip_bycand.csv")
+
+
+
+
+
+
+
+
+
 
 
 
