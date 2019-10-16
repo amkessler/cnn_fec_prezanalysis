@@ -24,22 +24,59 @@ contribs_db <- contribs_db %>%
     contributor_zip5 = str_sub(str_trim(contributor_zip), 1, 5)
   )
 
-#group by zip
-# contribs_db %>% 
-#   group_by(filer_committee_id_number, zip5) %>% 
-#   summarise(sumcontribs = sum(contribution_amount)) %>% 
-#   arrange(desc(sumcontribs))
 
-#to see the actual SQL statement generated add show_query() to the above
+#### FILTERING OUT ALL BUT THE TOP FIVE PREZ CANDIDATES #####
 
-#collect into local dataframe for joining
+#filter
+contribs_db <- contribs_db %>% 
+  filter(filer_committee_id_number %in% c("C00703975",
+                                          "C00697441",
+                                          "C00693234",
+                                          "C00694455",
+                                          "C00696948"))
+
+#check results to confirm
+contribs_db %>% 
+  count(filer_committee_id_number)
+
+# collect as local DataFrame
+contribs_selected <- contribs_db %>% 
+  collect()
+
+#check results
+contribs_selected %>% 
+  count(filer_committee_id_number)
+
+#save result 
+saveRDS(contribs_selected, "holding/contribs_selected.rds")
+
+# FILTER FOR ONLY Q3 CONTRIBUTIONS ####
+contribs_selected <- contribs_selected %>% 
+  mutate(
+    date_bkup = contribution_date,
+    contribution_date = ymd(contribution_date),
+    contribution_month = month(contribution_date),
+    contribution_year = year(contribution_date)
+  )
+
+contribs_selected_q3 <- contribs_selected %>% 
+  filter(contribution_month %in% c(7,
+                                   8,
+                                   9))
+
+#save result 
+saveRDS(contribs_selected_q3, "holding/contribs_selected_q3.rds")
+
+
+### BEGIN ZIP GROUPING ####
+
+
 #group by zip
-by_zip_and_filer <- contribs_db %>% 
+by_zip_and_filer <- contribs_selected_q3 %>% 
   group_by(filer_committee_id_number, contributor_zip5) %>% 
   summarise(sumcontribs = sum(contribution_amount)) %>% 
   arrange(desc(sumcontribs)) %>% 
-  ungroup() %>% 
-  collect()
+  ungroup() 
 
 
 #any repeated zips?
@@ -95,21 +132,7 @@ contribs_by_zip %>%
   filter(n > 1)
 
 
-
-#### FILTERING OUT ALL BUT THE TOP FIVE PREZ CANDIDATES #####
-
-contribs_by_zip %>% 
-  count(name, filer_committee_id_number)
-
-#filter
-contribs_by_zip <- contribs_by_zip %>% 
-  filter(filer_committee_id_number %in% c("C00703975",
-                                          "C00697441",
-                                          "C00693234",
-                                          "C00694455",
-                                          "C00696948"))
-
-#check results to confirm
+#check results 
 contribs_by_zip %>% 
   count(name, filer_committee_id_number)
 
