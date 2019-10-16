@@ -276,7 +276,7 @@ top10_byzip_bycand %>%
 top10_byzip_bycand %>% 
   count(contributor_zip5, city) %>% 
   arrange(desc(n)) %>% 
-write_csv("output/zips_mulitiplecands.csv")
+write_csv("output/top10zips_mulitiplecands.csv")
 
 # reshape to wide format as an alternative table structure ####
 test <- byzip_bycand %>% 
@@ -288,7 +288,7 @@ test_wide <- test %>%
 byzip_bycand_wide <- test_wide
 
 #write to file
-write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
+write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv", na = "")
 
 
 # 
@@ -366,5 +366,5 @@ joined_temp <- left_join(zipcompare, ziplookup, by = c("contributor_zip5" = "zip
 zipcompare <- joined_temp
 
 #save to file
-write_csv(zipcompare, paste0("output/zipcompare_", cand1, "_vs_", cand2, ".csv"))
+write_csv(zipcompare, paste0("output/zipcompare_", cand1, "_vs_", cand2, ".csv"), na = "")
 saveRDS(zipcompare, "zipcompare.rds")
