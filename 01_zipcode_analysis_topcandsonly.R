@@ -93,6 +93,26 @@ contribs_by_zip %>%
 
 
 
+#### FILTERING OUT ALL BUT THE TOP FIVE PREZ CANDIDATES #####
+
+contribs_by_zip %>% 
+  count(name, filer_committee_id_number)
+
+#filter
+contribs_by_zip <- contribs_by_zip %>% 
+  filter(filer_committee_id_number %in% c("C00703975",
+                                          "C00697441",
+                                          "C00693234",
+                                          "C00694455",
+                                          "C00696948"))
+
+#check results to confirm
+contribs_by_zip %>% 
+  count(name, filer_committee_id_number)
+
+
+
+
 #### BRING IN ZIP CODE LOOKUP TABLE #####
 
 ## we'll add named location associated with each zip code
@@ -222,12 +242,7 @@ byzip_bycand <- left_join(byzip_bycand, irs_zips_agi_grouped, by = c("contributo
 
 
 #write to file
-# write_csv(byzip_bycand, "output/byzip_bycand.csv")
-
-
-
-
-
+write_csv(byzip_bycand, "output/byzip_bycand.csv")
 
 
 
