@@ -70,7 +70,7 @@ saveRDS(contribs_selected_q3, "holding/contribs_selected_q3.rds")
 
 #****** FILTER FOR ONLY SELECTED EARLY VOTING STATES FOR PRIMARIES ######
 
-contribs_selected_q3 <- contribs_selected_q3 %>% 
+contribs_selected_q3_earlystates <- contribs_selected_q3 %>% 
   filter(contributor_state %in% c("IA",
                                   "NH",
                                   "SC",
@@ -80,7 +80,7 @@ contribs_selected_q3 <- contribs_selected_q3 %>%
 # CONTINUE NORMAL PROCESS FROM HERE --------------------------------------
 
 #group by zip
-by_zip_and_filer <- contribs_selected_q3 %>% 
+by_zip_and_filer <- contribs_selected_q3_earlystates %>% 
   group_by(filer_committee_id_number, contributor_zip5) %>% 
   summarise(sumcontribs = sum(contribution_amount)) %>% 
   arrange(desc(sumcontribs)) %>% 

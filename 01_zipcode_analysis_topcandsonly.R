@@ -67,6 +67,8 @@ contribs_selected_q3 <- contribs_selected %>%
 #save result 
 saveRDS(contribs_selected_q3, "holding/contribs_selected_q3.rds")
 
+contribs_selected_q3 %>% 
+  count(contributor_state)
 
 ### BEGIN ZIP GROUPING ####
 
@@ -166,6 +168,7 @@ joined <- left_join(contribs_by_zip, ziplookup, by = c("contributor_zip5" = "zip
 
 #create column for just last name of candidate
 joined$lastname <- str_split(joined$name, ",", simplify = TRUE)[,1]
+
 
 #final table
 byzip_bycand <- joined %>% 
