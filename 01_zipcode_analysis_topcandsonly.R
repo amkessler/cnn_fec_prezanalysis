@@ -78,7 +78,10 @@ zip_missing <- contribs_by_zip %>%
 
 #reorder columns, arrange
 contribs_by_zip <- contribs_by_zip %>% 
-  filter(!is.na(contributor_zip5)) %>% 
+  filter(!is.na(contributor_zip5),
+         contributor_zip5 != "0",
+         contributor_zip5 != "00000",
+         contributor_zip5 != "99999") %>% 
   select(name, everything()) %>% 
   arrange(name, desc(sumcontribs))
 
@@ -190,6 +193,7 @@ irs_zips_agi <- irszips_allcols %>%
 #take out the state-wide totals, zip = 0. Also remove "other" designation, 99999
 irs_zips_agi <- irs_zips_agi %>% 
   filter(zipcode != "0",
+         zipcode != "00000",
          zipcode != "99999")
 
 head(irs_zips_agi)
@@ -261,14 +265,18 @@ top10_byzip_bycand <- byzip_bycand %>%
 top10_byzip_bycand
 
 #write to file
-# write_csv(top10_byzip_bycand, "output/top10_byzip_bycand.csv")
+write_csv(top10_byzip_bycand, "output/top10_byzip_bycand.csv")
 
 #any common zips?
 top10_byzip_bycand %>% 
   count(contributor_zip5, city) %>% 
   arrange(desc(n))
   
-
+#write to file
+top10_byzip_bycand %>% 
+  count(contributor_zip5, city) %>% 
+  arrange(desc(n)) %>% 
+write_csv("output/zips_mulitiplecands.csv")
 
 # reshape to wide format as an alternative table structure ####
 test <- byzip_bycand %>% 
@@ -280,7 +288,7 @@ test_wide <- test %>%
 byzip_bycand_wide <- test_wide
 
 #write to file
-# write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
+write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
 
 
 
