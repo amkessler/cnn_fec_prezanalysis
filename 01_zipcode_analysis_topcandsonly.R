@@ -291,53 +291,54 @@ byzip_bycand_wide <- test_wide
 write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv")
 
 
-
-#### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS ####
-## For Magic Wall
-
-#start with existing zip breakdowns
-byzip_bycand
-
-#group by candidate, county
-bycounty_bycand <- byzip_bycand %>% 
-  filter(!is.na(county)) %>% 
-  group_by(lastname, fips, county, state) %>% 
-  summarise(sum_in_county = sum(sumcontribs)) 
-
-#any repeated fips?
-bycounty_bycand %>% 
-  count(lastname, fips) %>% 
-  filter(n > 1)
-
-#write to file
-# write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
-
-
-#reshaped version to wide
-test_c <- bycounty_bycand %>%
-  select(lastname, fips, sum_in_county)
-
-test_c_wide <- test_c %>%
-  spread(lastname, sum_in_county)
-
-bycounty_bycand_wide <- test_c_wide
-
-#write to file
-# write_csv(bycounty_bycand_wide, "output/bycounty_bycand_wide.csv")
+# 
+# #### CALCULATING COUNTY-LEVEL TOTALS BASED ON ZIPS ####
+# ## For Magic Wall
+# 
+# #start with existing zip breakdowns
+# byzip_bycand
+# 
+# #group by candidate, county
+# bycounty_bycand <- byzip_bycand %>% 
+#   filter(!is.na(county)) %>% 
+#   group_by(lastname, fips, county, state) %>% 
+#   summarise(sum_in_county = sum(sumcontribs)) 
+# 
+# #any repeated fips?
+# bycounty_bycand %>% 
+#   count(lastname, fips) %>% 
+#   filter(n > 1)
+# 
+# #write to file
+# # write_csv(bycounty_bycand, "output/bycounty_bycand.csv")
+# 
+# 
+# #reshaped version to wide
+# test_c <- bycounty_bycand %>%
+#   select(lastname, fips, sum_in_county)
+# 
+# test_c_wide <- test_c %>%
+#   spread(lastname, sum_in_county)
+# 
+# bycounty_bycand_wide <- test_c_wide
+# 
+# #write to file
+# # write_csv(bycounty_bycand_wide, "output/bycounty_bycand_wide.csv")
+# 
 
 
 
 #### COMPARING TWO DIFFERENT CANDIDATES' ZIP CODE PERFORMANCE ####
 
 # select first candidate
-cand1 <- "Booker"
+cand1 <- "Sanders"
 
 z_cand1 <- byzip_bycand %>% 
   filter(lastname == cand1) %>% 
   select(contributor_zip5, cand1_contribs = sumcontribs)
   
 # select second candidate
-cand2 <- "Harris"
+cand2 <- "Warren"
 
 z_cand2 <- byzip_bycand %>% 
   filter(lastname == cand2) %>% 
@@ -365,5 +366,5 @@ joined_temp <- left_join(zipcompare, ziplookup, by = c("contributor_zip5" = "zip
 zipcompare <- joined_temp
 
 #save to file
+write_csv(zipcompare, paste0("output/zipcompare_", cand1, "_vs_", cand2, ".csv"))
 saveRDS(zipcompare, "zipcompare.rds")
-
