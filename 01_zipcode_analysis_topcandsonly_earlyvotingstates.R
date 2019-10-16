@@ -14,6 +14,16 @@ contribs_db <- tbl(con, "cycle_2020_schedulea")
 
 glimpse(contribs_db)
 
+#filter out only individual contributions, and active ones
+#create contributor_zip5 field by pulling out just first five digits
+contribs_db <- contribs_db %>% 
+  filter(active==TRUE,
+         status == "ACTIVE",
+         entity_type == "IND") %>% 
+  mutate(
+    contributor_zip5 = str_sub(str_trim(contributor_zip), 1, 5)
+  )
+
 
 #### FILTERING OUT ALL BUT THE TOP FIVE PREZ CANDIDATES #####
 
@@ -29,47 +39,52 @@ contribs_db <- contribs_db %>%
 contribs_db %>% 
   count(filer_committee_id_number)
 
+# collect as local DataFrame
+contribs_selected <- contribs_db %>% 
+  collect()
 
-# FILTER FOR ONLY Q3 CONTRIBUTIONS 
-contribs_db %>% 
-  mutate(
-    mydate = ymd(contribution_date)
-  ) %>% 
-  select(mydate, contribution_date)
+#check results
+contribs_selected %>% 
+  count(filer_committee_id_number)
 
-#filter out only individual contributions, and active ones
-#create contributor_zip5 field by pulling out just first five digits
-contribs_db <- contribs_db %>% 
-  filter(active==TRUE,
-         status == "ACTIVE",
-         entity_type == "IND") %>% 
+#save result 
+saveRDS(contribs_selected, "holding/contribs_selected.rds")
+
+# FILTER FOR ONLY Q3 CONTRIBUTIONS ####
+contribs_selected <- contribs_selected %>% 
   mutate(
-    contributor_zip5 = str_sub(str_trim(contributor_zip), 1, 5)
-  )
-#to see the actual SQL statement generated add show_query() to the above
+    date_bkup = contribution_date,
+    contribution_date = ymd(contribution_date),
+    contribution_month = month(contribution_date),
+    contribution_year = year(contribution_date)
+      )
+
+contribs_selected_q3 <- contribs_selected %>% 
+  filter(contribution_month %in% c(7,
+                                   8,
+                                   9))
+
+#save result 
+saveRDS(contribs_selected_q3, "holding/contribs_selected_q3.rds")
 
 
 #****** FILTER FOR ONLY SELECTED EARLY VOTING STATES FOR PRIMARIES ######
 
-contribs_db <- contribs_db %>% 
+contribs_selected_q3 <- contribs_selected_q3 %>% 
   filter(contributor_state %in% c("IA",
                                   "NH",
                                   "SC",
                                   "NV"))
 
 
+# CONTINUE NORMAL PROCESS FROM HERE --------------------------------------
 
-
-# CONTINUE NORMAL PROCESS FROM HERE ####
-
-#collect into local dataframe for joining
 #group by zip
-by_zip_and_filer <- contribs_db %>% 
+by_zip_and_filer <- contribs_selected_q3 %>% 
   group_by(filer_committee_id_number, contributor_zip5) %>% 
   summarise(sumcontribs = sum(contribution_amount)) %>% 
   arrange(desc(sumcontribs)) %>% 
-  ungroup() %>% 
-  collect()
+  ungroup() 
 
 
 #any repeated zips?
