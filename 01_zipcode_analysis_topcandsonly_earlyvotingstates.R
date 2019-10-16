@@ -23,9 +23,17 @@ contribs_db <- contribs_db %>%
   mutate(
     contributor_zip5 = str_sub(str_trim(contributor_zip), 1, 5)
   )
-
-
 #to see the actual SQL statement generated add show_query() to the above
+
+
+#****** FILTER FOR ONLY SELECTED SWING STATES ######
+
+
+
+
+
+
+# CONTINUE NORMAL PROCESS FROM HERE ####
 
 #collect into local dataframe for joining
 #group by zip
