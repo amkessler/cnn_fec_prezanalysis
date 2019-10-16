@@ -14,6 +14,29 @@ contribs_db <- tbl(con, "cycle_2020_schedulea")
 
 glimpse(contribs_db)
 
+
+#### FILTERING OUT ALL BUT THE TOP FIVE PREZ CANDIDATES #####
+
+#filter
+contribs_db <- contribs_db %>% 
+  filter(filer_committee_id_number %in% c("C00703975",
+                                          "C00697441",
+                                          "C00693234",
+                                          "C00694455",
+                                          "C00696948"))
+
+#check results to confirm
+contribs_db %>% 
+  count(filer_committee_id_number)
+
+
+# FILTER FOR ONLY Q3 CONTRIBUTIONS 
+contribs_db %>% 
+  mutate(
+    mydate = ymd(contribution_date)
+  ) %>% 
+  select(mydate, contribution_date)
+
 #filter out only individual contributions, and active ones
 #create contributor_zip5 field by pulling out just first five digits
 contribs_db <- contribs_db %>% 
@@ -26,9 +49,13 @@ contribs_db <- contribs_db %>%
 #to see the actual SQL statement generated add show_query() to the above
 
 
-#****** FILTER FOR ONLY SELECTED SWING STATES ######
+#****** FILTER FOR ONLY SELECTED EARLY VOTING STATES FOR PRIMARIES ######
 
-
+contribs_db <- contribs_db %>% 
+  filter(contributor_state %in% c("IA",
+                                  "NH",
+                                  "SC",
+                                  "NV"))
 
 
 
@@ -96,26 +123,6 @@ contribs_by_zip %>%
 contribs_by_zip %>% 
   count(name, contributor_zip5) %>% 
   filter(n > 1)
-
-
-
-#### FILTERING OUT ALL BUT THE TOP FIVE PREZ CANDIDATES #####
-
-contribs_by_zip %>% 
-  count(name, filer_committee_id_number)
-
-#filter
-contribs_by_zip <- contribs_by_zip %>% 
-  filter(filer_committee_id_number %in% c("C00703975",
-                                          "C00697441",
-                                          "C00693234",
-                                          "C00694455",
-                                          "C00696948"))
-
-#check results to confirm
-contribs_by_zip %>% 
-  count(name, filer_committee_id_number)
-
 
 
 
@@ -249,7 +256,7 @@ byzip_bycand <- left_join(byzip_bycand, irs_zips_agi_grouped, by = c("contributo
 
 
 #write to file
-write_csv(byzip_bycand, "output/byzip_bycand.csv")
+write_csv(byzip_bycand, "output/earlystates_byzip_bycand.csv")
 
 
 
@@ -268,7 +275,7 @@ top10_byzip_bycand <- byzip_bycand %>%
 top10_byzip_bycand
 
 #write to file
-write_csv(top10_byzip_bycand, "output/top10_byzip_bycand.csv")
+write_csv(top10_byzip_bycand, "output/earlystates_top10_byzip_bycand.csv")
 
 #any common zips?
 top10_byzip_bycand %>% 
@@ -279,7 +286,7 @@ top10_byzip_bycand %>%
 top10_byzip_bycand %>% 
   count(contributor_zip5, city) %>% 
   arrange(desc(n)) %>% 
-write_csv("output/top10zips_mulitiplecands.csv")
+write_csv("output/earlystates_top10zips_mulitiplecands.csv")
 
 # reshape to wide format as an alternative table structure ####
 test <- byzip_bycand %>% 
@@ -291,7 +298,7 @@ test_wide <- test %>%
 byzip_bycand_wide <- test_wide
 
 #write to file
-write_csv(byzip_bycand_wide, "output/byzip_bycand_wide.csv", na = "")
+write_csv(byzip_bycand_wide, "output/earlystates_byzip_bycand_wide.csv", na = "")
 
 
 # 
@@ -369,5 +376,5 @@ joined_temp <- left_join(zipcompare, ziplookup, by = c("contributor_zip5" = "zip
 zipcompare <- joined_temp
 
 #save to file
-write_csv(zipcompare, paste0("output/zipcompare_", cand1, "_vs_", cand2, ".csv"), na = "")
-saveRDS(zipcompare, "zipcompare.rds")
+write_csv(zipcompare, paste0("output/earlystates_zipcompare_", cand1, "_vs_", cand2, ".csv"), na = "")
+saveRDS(zipcompare, "earlystates_zipcompare.rds")
