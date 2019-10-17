@@ -258,7 +258,10 @@ m6
 
 #### COMPARISON ISOLATING ONLY A SPECIFIC STATE - FILTERING OUT THE REST ####
 
-m7 <- leaflet(zipcompare_map) %>%
+zipcompare_map_onestate <- zipcompare_map %>% 
+  filter(state == "IA")
+
+m7 <- leaflet(zipcompare_map_onestate) %>%
   # addTiles() %>%
   addProviderTiles(providers$Stamen.TonerLite) %>%
   addCircles(lng = ~longitude,
@@ -266,12 +269,13 @@ m7 <- leaflet(zipcompare_map) %>%
              weight = .4,
              stroke = FALSE,
              fillOpacity = .35,
-             radius = ~sqrt(advantage) * 10,
+             radius = ~sqrt(advantage) * 200,
              fillColor = ~factpal(winner),
              label = lapply(labs2, HTML)
   ) %>%
   addLegend("bottomright", pal = factpal, values = ~winner) %>% 
   addControl("Individual donations (itemized) by zip code", position = "topright") %>%
-  setView(-122.4194, 37.7749, zoom=10)
+  setView(-93.0977, 41.8780, zoom=7)
 
 m7
+
