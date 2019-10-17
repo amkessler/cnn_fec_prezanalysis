@@ -70,6 +70,8 @@ saveRDS(contribs_selected_q3, "holding/contribs_selected_q3.rds")
 contribs_selected_q3 %>% 
   count(contributor_state)
 
+
+
 ### BEGIN ZIP GROUPING ####
 
 

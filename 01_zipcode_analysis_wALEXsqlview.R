@@ -302,7 +302,7 @@ z_cand1 <- byzip_bycand %>%
   select(contributor_zip5, cand1_contribs = sumcontribs)
   
 # select second candidate
-cand2 <- "xHarris"
+cand2 <- "Biden"
 
 z_cand2 <- byzip_bycand %>% 
   filter(lastname == cand2) %>% 

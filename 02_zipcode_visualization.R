@@ -163,7 +163,7 @@ m2_nyc <- leaflet(zipcompare_map) %>%
              weight = .4,
              stroke = FALSE,
              fillOpacity = .45,
-             radius = ~sqrt(advantage) * 6, 
+             radius = ~sqrt(advantage) * 20, 
              fillColor = ~factpal(winner),
              label = lapply(labs2, HTML)
   ) %>%
@@ -189,7 +189,7 @@ m4 <- leaflet(zipcompare_map) %>%
              weight = .4,
              stroke = FALSE,
              fillOpacity = .45,
-             radius = ~sqrt(advantage) * 15,
+             radius = ~sqrt(advantage) * 20,
              fillColor = ~factpal(winner),
              label = lapply(labs2, HTML)
   ) %>%
@@ -255,3 +255,23 @@ m6
 # htmlwidgets::saveWidget(frameableWidget(m6),'cand_zipcompare_la.html')
 
 
+
+#### COMPARISON ISOLATING ONLY A SPECIFIC STATE - FILTERING OUT THE REST ####
+
+m7 <- leaflet(zipcompare_map) %>%
+  # addTiles() %>%
+  addProviderTiles(providers$Stamen.TonerLite) %>%
+  addCircles(lng = ~longitude,
+             lat = ~latitude,
+             weight = .4,
+             stroke = FALSE,
+             fillOpacity = .35,
+             radius = ~sqrt(advantage) * 10,
+             fillColor = ~factpal(winner),
+             label = lapply(labs2, HTML)
+  ) %>%
+  addLegend("bottomright", pal = factpal, values = ~winner) %>% 
+  addControl("Individual donations (itemized) by zip code", position = "topright") %>%
+  setView(-122.4194, 37.7749, zoom=10)
+
+m7
