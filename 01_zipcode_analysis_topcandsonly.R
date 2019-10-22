@@ -71,6 +71,20 @@ contribs_selected_q3 %>%
   count(contributor_state)
 
 
+# ANY LESS THAN $200 AGGREGATE DONORS? ####
+glimpse(contribs_selected_q3)
+
+contribs_selected_q3 %>% 
+  filter(contribution_aggregate < 200,
+         filer_committee_id_number == "C00694455") %>% 
+  View()
+  
+
+contribs_selected_q3 %>% 
+  filter(contribution_aggregate < 200) %>% 
+  group_by(filer_committee_id_number) %>% 
+  summarise(numrecords = n(), sumtotal = sum(contribution_amount))
+
 
 ### BEGIN ZIP GROUPING ####
 
