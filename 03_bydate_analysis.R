@@ -6,6 +6,8 @@ library(lubridate)
 library(janitor)
 library(dbplyr)
 library(writexl)
+library(plotly)
+library(scales)
 options(scipen = 999)
 
 
@@ -34,29 +36,26 @@ glimpse(contribs_db)
 
 #filter out only individual contributions, and active ones
 #download locally to dataframe
+
+# prez_contribs <- contribs_db %>% 
+#   filter(
+#     filer_committee_id_number %in% prez_ids,
+#     active==TRUE,
+#     status=="ACTIVE",
+#     entity_type=="IND"
+#     ) %>% 
+#   collect()
+
+#filter for just ONE candidate: Booker
+
 prez_contribs <- contribs_db %>% 
   filter(
-    filer_committee_id_number %in% prez_ids,
+    filer_committee_id_number == "C00695510",
     active==TRUE,
     status=="ACTIVE",
     entity_type=="IND"
-    ) %>% 
+  ) %>% 
   collect()
-
-
-#alternate method
-# prez_contribs <- contribs_db %>% 
-#   mutate(form_type = str_to_upper(form_type)) %>% 
-#   filter(
-#     active==TRUE,
-#     filer_committee_id_number %in% prez_ids,
-#     form_type %in% c("SA17A", #individuals other than cmtes
-#                      "SA18", #transfers from other cmtes
-#                      "SB28A") #refunds to individuals
-#   ) %>% 
-#   collect()
-
-
 
 
 # format date
@@ -74,9 +73,9 @@ prez_names <- prez_cands %>%
 
 tempp1 <- inner_join(prez_bydate, prez_names, by = c("filer_committee_id_number" = "fec_committee_id"))
 
-#filter for only Q2
+#filter for only Q3
 tempp1 <- tempp1 %>% 
-  filter(contribution_date >= as_date("2019-04-01"))
+  filter(contribution_date >= as_date("2019-07-01"))
 
 
 #final table
@@ -89,19 +88,68 @@ write_xlsx(prez_bydate, "output/prez_by_date.xlsx")
 
 prez_bydate
 
-#### PLOTS ####
 
-#faceted with all cands
+
+#### Booker analysis of 10-day fundraising sprint ####
+
+#total for 10-day period
+prez_bydate %>% 
+  filter(contribution_date >= "2019-09-21") %>% 
+  summarise(sum(sumcontribs))
+
+
+
+
+
+
+
+
+
+
+
+#### PLOTS #### --------------------------------------------
+
+#line chart
 p <- ggplot(data = prez_bydate, aes(contribution_date, sumcontribs)) +
   geom_line(color = "steelblue", size = 1) +
   # geom_point(color = "steelblue") +
-  labs(title = "Q2 Daily Totals - Individual contributions (itemized)",
+  labs(title = "Booker Daily Totals - Individual contributions (itemized)",
        subtitle = "",
-       y = "Dollars", x = "") + 
-  facet_wrap(~ name) +
+       y = "", x = "") + 
+  # facet_wrap(~ name) +
   theme(
     strip.text.x = element_text(margin = margin(2, 0, 2, 0))
-  )
+  ) +
+  scale_y_continuous(labels = dollar)
 
 p
+
+
+
+#bar chart
+d <- ggplot(data = prez_bydate, aes(x = contribution_date, y = sumcontribs)) +
+  geom_col(
+    # color = "#848484",
+    fill = "lightblue") +
+  # coord_flip() +
+  theme_minimal()
+
+d
+
+d2 <- d + labs(title = "Booker Daily Totals - Individual contributions (itemized)",
+               x ="", 
+               y = "") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  # scale_fill_manual(values=cbPalette) +
+  theme(legend.title=element_blank()) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = dollar)
+
+d2
+
+dd <- ggplotly(d2)
+
+dd_nomenu <- dd %>% config(displayModeBar = FALSE)
+dd_nomenu
+
 
