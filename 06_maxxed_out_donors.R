@@ -122,6 +122,44 @@ join_recs <- join_recs %>%
 
 
 
+#### METHOD USING NAME/ZIP FOR UNIQUE DONORS FOR 2800 BREAKDOWN ####
+
+#create the unique donor id string
+contribs_selected <- contribs_selected %>% 
+  mutate(
+    donorstringid = str_c(contributor_last_name, contributor_first_name, contributor_zip5),
+    donorstringid = str_squish(str_to_upper(donorstringid))
+  ) 
+
+
+#group donors
+uniquedonor_bycand <- contribs_selected %>% 
+  group_by(filer_committee_id_number, donorstringid) %>% 
+  summarise(cnt = n(), totcontribs = sum(contribution_amount))
+
+
+#add flag for whether donor is maxxed (2800 primary per cand or not
+uniquedonor_bycand <- uniquedonor_bycand %>% 
+  filter(
+    totcontribs > 0
+  ) %>% 
+  mutate(
+    maxxed = if_else(totcontribs >= 2800, "Y", "N")
+  ) 
+
+
+#calculate share of maxxed donors for each candidate
+cand_max <- uniquedonor_bycand %>% 
+  group_by(filer_committee_id_number, maxxed) %>% 
+  summarise(total = sum(totcontribs)) %>% 
+  arrange(filer_committee_id_number, maxxed)
+
+cand_max %>% 
+  group_by(filer_committee_id_number) %>% 
+  mutate(
+    percent =  (total/sum(total))*100
+  )
+
 
 
 
