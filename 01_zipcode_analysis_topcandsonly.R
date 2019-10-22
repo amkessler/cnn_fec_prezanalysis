@@ -77,7 +77,7 @@ glimpse(contribs_selected_q3)
 contribs_selected_q3 %>% 
   filter(contribution_aggregate < 200,
          filer_committee_id_number == "C00694455") %>% 
-  View()
+  write_csv("output/harrisaggless200.csv")
   
 
 contribs_selected_q3 %>% 
@@ -86,11 +86,15 @@ contribs_selected_q3 %>%
   summarise(numrecords = n(), sumtotal = sum(contribution_amount))
 
 
+
+
+
+
 ### BEGIN ZIP GROUPING ####
 
 
 #group by zip
-by_zip_and_filer <- contribs_selected_q3 %>% 
+by_zip_and_filer <- contribs_selected_q3 %>%  #make sure to pull from the correct quarter range here
   group_by(filer_committee_id_number, contributor_zip5) %>% 
   summarise(sumcontribs = sum(contribution_amount)) %>% 
   arrange(desc(sumcontribs)) %>% 
