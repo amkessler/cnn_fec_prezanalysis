@@ -9,23 +9,8 @@ library(writexl)
 options(scipen = 999)
 
 
-# get prez committee IDs from candidate table
-
-#pull candidate table from postgres db
-cand_db <- tbl(con, "cycle_2020_candidate")
-
-
-#filter only for presidential 
-prez_cands <- cand_db %>% 
-  filter(district == "US") %>%
-  collect()
-
-# create vector of IDS
-prez_ids <- prez_cands %>% 
-  filter(district == "US") %>% 
-  select(fec_committee_id) %>% 
-  pull()
-
+#list the tables in the database
+src_dbi(con)
 
 #pull in the schedule A table from postgres db
 contribs_db <- tbl(con, "cycle_2020_schedulea")
@@ -33,16 +18,25 @@ contribs_db <- tbl(con, "cycle_2020_schedulea")
 glimpse(contribs_db)
 
 #filter out only individual contributions, and active ones
-#download locally to dataframe
-prez_contribs <- contribs_db %>% 
-  filter(
-    filer_committee_id_number %in% prez_ids,
-    active==TRUE,
-    status=="ACTIVE",
-    entity_type=="IND"
-    ) %>% 
-  collect()
+#create contributor_zip5 field by pulling out just first five digits
+contribs_db <- contribs_db %>% 
+  filter(active==TRUE,
+         status == "ACTIVE",
+         entity_type == "IND") %>% 
+  mutate(
+    contributor_zip5 = str_sub(str_trim(contributor_zip), 1, 5)
+  )
 
+
+#### FILTERING OUT ALL BUT THE TOP FIVE PREZ CANDIDATES #####
+
+#filter
+contribs_db <- contribs_db %>% 
+  filter(filer_committee_id_number %in% c("C00703975",
+                                          "C00697441",
+                                          "C00693234",
+                                          "C00694455",
+                                          "C00696948"))
 
 #alternate method
 # prez_contribs <- contribs_db %>% 
@@ -76,10 +70,57 @@ temp <- inner_join(prez_contribs, prez_names, by = c("filer_committee_id_number"
 
 
 
-##### FINDING MAX DONORS (PRIMARY; 2800+) #### -------------------------------------
+#### LOAD SAVED DATA - START HERE #### -------------------------------------
 
-ge2800 <- temp %>% 
+### pull in saved RDS created from zip 01 file - top five candidates full cycle
+contribs_selected <- readRDS("holding/contribs_selected.rds")
+
+
+
+##### FINDING MAX DONORS (PRIMARY; 2800+) #### 
+
+#see what happens if key off aggregate (revisit this more, but as initial pass)
+ge2800 <- contribs_selected %>% 
   filter(contribution_aggregate >= 2800)
+
+#trying to find how many unique donors
+names(ge2800)
+
+ge2800 %>% 
+  count(contributor_last_name, contributor_first_name, contributor_zip5)
+
+
+ge2800 %>% 
+  count(filer_committee_id_number, contributor_last_name, contributor_first_name, contributor_zip5) %>% 
+  count(filer_committee_id_number)
+
+
+
+
+#total donation records per candidate?
+totrecs <- contribs_selected %>% 
+  count(filer_committee_id_number) %>% 
+  rename(totrecs = n)
+
+#total donation records with 2800+ aggregates
+ge2800_recs <- contribs_selected %>% 
+  filter(contribution_aggregate >= 2800) %>% 
+  count(filer_committee_id_number) %>% 
+  rename(ge2800_recs = n)
+
+#join
+join_recs <- inner_join(ge2800_recs, totrecs)
+
+join_recs
+
+#percentages
+join_recs <- join_recs %>% 
+  mutate(
+    pct_ge2800 = round_half_up(ge2800_recs/totrecs * 100, 2)
+  )
+
+
+
 
 
 
