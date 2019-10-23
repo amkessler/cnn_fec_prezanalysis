@@ -35,4 +35,12 @@ prezdata %>%
   View()
 
 #export our results to an Excel file 
-# write_xlsx(prezdata, "prezdata_summaries.xlsx") #this file show up in your existing folder
+# write_xlsx(prezdata, "prezdata_summaries.xlsx") 
+
+
+## Mayor Pete ####
+pete <- prezdata %>% 
+  filter(committee_name == "Pete for America, Inc.")
+
+pete %>% 
+  summarise(sum(period_individual_contribution_total))
