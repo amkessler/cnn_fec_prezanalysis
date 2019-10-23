@@ -28,15 +28,54 @@ contribs_db <- contribs_db %>%
   )
 
 
+contribs_db <- contribs_db %>%
+  mutate(form_type = str_to_upper(form_type)) %>%
+  filter(
+    active==TRUE,
+    form_type %in% c("SA17A", #individuals other than cmtes
+                     "SA18", #transfers from other cmtes
+                     "SB28A") #refunds to individuals
+  )
+
+
+
+
 #### FILTERING OUT ALL BUT THE TOP FIVE PREZ CANDIDATES #####
 
 #filter
-contribs_db <- contribs_db %>% 
+prez_contribs <- contribs_db %>% 
   filter(filer_committee_id_number %in% c("C00703975",
                                           "C00697441",
                                           "C00693234",
                                           "C00694455",
                                           "C00696948"))
+
+#sum totals
+prez_contribs %>%
+  group_by(filer_committee_id_number) %>% 
+  summarise(totdollars = sum(contribution_amount))
+
+
+#date totals
+dates <- prez_contribs %>%
+  group_by(contribution_date) %>% 
+  summarise(totdollars = sum(contribution_amount)) %>% 
+  collect()
+
+dates$contribution_date <- ymd(dates$contribution_date)
+
+dates %>% 
+  arrange(desc(contribution_date))
+
+
+#collect
+prez_contribs <- contribs_db %>% 
+  filter(filer_committee_id_number %in% c("C00703975",
+                                          "C00697441",
+                                          "C00693234",
+                                          "C00694455",
+                                          "C00696948")) %>% 
+  collect()
 
 #alternate method
 # prez_contribs <- contribs_db %>% 
@@ -57,23 +96,36 @@ contribs_db <- contribs_db %>%
 prez_contribs$contribution_date <- ymd(prez_contribs$contribution_date)
 
 
-#bring in name from cand table
-prez_names <- prez_cands %>% 
-  select(fec_committee_id, name)
+##### BRING IN CANDIDATE TABLE TO JOIN ####
 
-temp <- inner_join(prez_contribs, prez_names, by = c("filer_committee_id_number" = "fec_committee_id"))
+## get the associated name from fec cmte id
+## we'll also limit to just Prez cmtes
 
-# #filter for only Q2
-# tempp1 <- tempp1 %>% 
-#   filter(contribution_date >= as_date("2019-04-01"))
+#pull candidate table from postgres db
+cand_db <- tbl(con, "cycle_2020_candidate")
 
+#filter only for presidential
+candnames <- cand_db %>% 
+  filter(district == "US") %>% 
+  select(name, fec_committee_id) %>% 
+  collect()
+
+#join
+temp <- inner_join(prez_contribs, candnames, by = c("filer_committee_id_number" = "fec_committee_id"))
+
+#place name first in order
+contribs_selected_formax <- temp %>% 
+  select(name, everything())
+
+#save as RDS
+saveRDS(contribs_selected_formax, "holding/contribs_selected_formax.rds")
 
 
 
 #### LOAD SAVED DATA - START HERE #### -------------------------------------
 
-### pull in saved RDS created from zip 01 file - top five candidates full cycle
-contribs_selected <- readRDS("holding/contribs_selected.rds")
+### pull in saved RDS created 
+contribs_selected <- readRDS("holding/contribs_selected_formax.rds")
 
 
 
@@ -125,7 +177,7 @@ join_recs <- join_recs %>%
 #### METHOD USING NAME/ZIP FOR UNIQUE DONORS FOR 2800 BREAKDOWN ####
 
 #create the unique donor id string
-contribs_selected <- contribs_selected %>% 
+contribs_selected_formax <- contribs_selected_formax %>% 
   mutate(
     donorstringid = str_c(contributor_last_name, contributor_first_name, contributor_zip5),
     donorstringid = str_squish(str_to_upper(donorstringid))
@@ -133,16 +185,14 @@ contribs_selected <- contribs_selected %>%
 
 
 #group donors
-uniquedonor_bycand <- contribs_selected %>% 
-  group_by(filer_committee_id_number, donorstringid) %>% 
+uniquedonor_bycand <- contribs_selected_formax %>% 
+  group_by(name, donorstringid) %>% 
   summarise(cnt = n(), totcontribs = sum(contribution_amount))
 
 
 #add flag for whether donor is maxxed (2800 primary per cand or not
 uniquedonor_bycand <- uniquedonor_bycand %>% 
-  filter(
-    totcontribs > 0
-  ) %>% 
+  filter(totcontribs > 0) %>% 
   mutate(
     maxxed = if_else(totcontribs >= 2800, "Y", "N")
   ) 
@@ -150,16 +200,16 @@ uniquedonor_bycand <- uniquedonor_bycand %>%
 
 #calculate share of maxxed donors for each candidate
 cand_max <- uniquedonor_bycand %>% 
-  group_by(filer_committee_id_number, maxxed) %>% 
-  summarise(total = sum(totcontribs)) %>% 
-  arrange(filer_committee_id_number, maxxed)
+  group_by(name, maxxed) %>% 
+  summarise(total = sum(totcontribs)) 
 
-cand_max %>% 
-  group_by(filer_committee_id_number) %>% 
+cand_max <- cand_max %>% 
+  group_by(name) %>% 
   mutate(
     percent =  (total/sum(total))*100
   )
 
+write_xlsx(cand_max, "output/cand_max.xlsx")
 
 
 
