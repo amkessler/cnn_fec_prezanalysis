@@ -28,14 +28,14 @@ contribs_db <- contribs_db %>%
   )
 
 
-contribs_db <- contribs_db %>%
-  mutate(form_type = str_to_upper(form_type)) %>%
-  filter(
-    active==TRUE,
-    form_type %in% c("SA17A", #individuals other than cmtes
-                     "SA18", #transfers from other cmtes
-                     "SB28A") #refunds to individuals
-  )
+# contribs_db <- contribs_db %>%
+#   mutate(form_type = str_to_upper(form_type)) %>%
+#   filter(
+#     active==TRUE,
+#     form_type %in% c("SA17A", #individuals other than cmtes
+#                      "SA18", #transfers from other cmtes
+#                      "SB28A") #refunds to individuals
+#   )
 
 
 
@@ -77,20 +77,6 @@ prez_contribs <- contribs_db %>%
                                           "C00696948")) %>% 
   collect()
 
-#alternate method
-# prez_contribs <- contribs_db %>% 
-#   mutate(form_type = str_to_upper(form_type)) %>% 
-#   filter(
-#     active==TRUE,
-#     filer_committee_id_number %in% prez_ids,
-#     form_type %in% c("SA17A", #individuals other than cmtes
-#                      "SA18", #transfers from other cmtes
-#                      "SB28A") #refunds to individuals
-#   ) %>% 
-#   collect()
-
-
-
 
 # format date
 prez_contribs$contribution_date <- ymd(prez_contribs$contribution_date)
@@ -119,6 +105,7 @@ contribs_selected_formax <- temp %>%
 
 #save as RDS
 saveRDS(contribs_selected_formax, "holding/contribs_selected_formax.rds")
+
 
 
 
@@ -190,7 +177,7 @@ uniquedonor_bycand <- contribs_selected_formax %>%
   summarise(cnt = n(), totcontribs = sum(contribution_amount))
 
 
-#add flag for whether donor is maxxed (2800 primary per cand or not
+#add flag for whether donor is maxxed (2800 primary per cand or not)
 uniquedonor_bycand <- uniquedonor_bycand %>% 
   filter(totcontribs > 0) %>% 
   mutate(
@@ -210,6 +197,10 @@ cand_max <- cand_max %>%
   )
 
 write_xlsx(cand_max, "output/cand_max.xlsx")
+
+cand_max %>% 
+  filter(maxxed == "Y")
+
 
 
 
